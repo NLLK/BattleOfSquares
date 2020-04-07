@@ -1,0 +1,257 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections;
+
+namespace BattleOfSquares
+{
+    public class Texture
+    {
+        public Texture2D texture;
+        public string name;
+        public Texture(Texture2D t, string n)
+        {
+            texture = t;
+            name = n;
+        }
+        ~Texture()
+        {
+            texture = null;
+            name = null;
+        }
+
+    }
+    public class GridCoords
+    {
+        public static Point GetPoint(int x, int y)
+        {
+            return new Point(x * 54 + GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2 - 590, y * 54);
+        }
+
+    }
+    public class Square
+    {
+        public static Point sizeOfGrid = new Point(54, 54);
+
+        static Color blueTeamColor = new Color(102, 153, 255, 255);
+        static Color pinkTeamColor = new Color(255, 51, 153, 255);
+
+
+        public void Draw(int w, int h, int rotate, int team, int x, int y, GraphicsDevice gd)
+        {
+            SpriteBatch sb = new SpriteBatch(gd);
+            
+            Vector2 size;
+            if (rotate == 1) size = new Vector2(w * sizeOfGrid.X, h * sizeOfGrid.Y);
+            else size = new Vector2(h * sizeOfGrid.Y, w * sizeOfGrid.X);
+
+            Vector2 position = new Vector2(x + h * 54 * rotate, y);
+
+            Color teamColor = (team == 0) ? blueTeamColor : pinkTeamColor;
+
+            string name = w.ToString() + "-" + h.ToString();
+
+            Texture2D sqTexture = Game1.GetTexture(name);
+
+            sb.Begin();
+            sb.Draw(sqTexture, position, null, teamColor, 1.57f * rotate, Vector2.Zero, 1f, 0, 0);
+            sb.End();
+            sb = null;
+        }
+        public void Draw(int w, int h, int rotate, int team, Point xy, GraphicsDevice gd)
+        {
+            Draw(w, h, rotate, team, xy.X, xy.Y, gd);
+        }
+        public void Draw(int w, int h, int team, Point xy, GraphicsDevice gd)
+        {
+            Draw(w, h, 0, team, xy.X, xy.Y, gd);
+        }
+        public void Draw(int w, int h, int team, int x, int y, GraphicsDevice gd)
+        {
+            Draw(w, h, 0, team, x, y, gd);
+        }
+        public void Draw(string name, int team, int rotate, Point pos, GraphicsDevice gd)
+        {
+            int w = Convert.ToInt16(name.Substring(0, 1));
+            int h = Convert.ToInt16(name.Substring(2, 1));
+            Draw(w, h, rotate, team, pos.X, pos.Y, gd);
+        }
+    }
+
+    public class GridSystem
+    {
+        GraphicsDevice gd;
+        int[,] gridArray = new int[20, 20];
+
+        ArrayList squaresList = new ArrayList();
+
+        public class ElementOfSqList
+        {
+            public Point position;
+            public string name;
+            public int team;
+            public int rotate;
+            public ElementOfSqList(Point position, string name, int rotate, int team)
+            {
+                this.position = position;
+                this.name = name;
+                this.team = team;
+                this.rotate = rotate;
+            }
+
+        }
+        public GridSystem(GraphicsDevice gd)
+        {
+            this.gd = gd;
+        }
+        public void addSquare(int height, int width, int rotate, string team, int x,int y)
+        {
+            Point coords = GridCoords.GetPoint(x, y);
+
+            if ((gridArray[x, y] == 0)||(squaresList.Count==0))
+            {
+                ElementOfSqList el = new ElementOfSqList(coords, height.ToString() + "-" + width.ToString(), rotate, (team == "blue") ? 0 : 1);
+
+                squaresList.Add(el);
+                gridArray[x, y] = squaresList.Count;
+
+                el = null;
+            }
+        }
+        public void DrawAll()
+        {
+            for (int n = 0; n < squaresList.Count; n++)
+            {
+                Square sq = new Square();
+                ElementOfSqList el = (ElementOfSqList)squaresList[n];
+                sq.Draw(el.name, el.team, el.rotate, el.position, gd);
+                sq = null;
+            }
+        }
+        public void ClearSquares()
+        {
+            squaresList.Clear();
+        }
+    }
+
+    public class Game1 : Game
+    {
+        GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
+        MouseState lastMouseState;
+
+        Texture2D fieldTexture;
+
+        int currentTime = 0; // сколько времени прошло
+        int period = 62; // частота обновления в миллисекундах
+
+        Point position;
+        Vector2 positionVector = Vector2.Zero;
+
+        GridSystem gridSystem;
+        static ArrayList listOfTextures = new ArrayList();
+        Vector2 startPoint = new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2 - 590, 0);
+        public Game1()
+        {
+            graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+        }
+
+        protected override void Initialize()
+        {
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 20;
+            graphics.ApplyChanges();
+            // graphics.ToggleFullScreen();  
+            gridSystem = new GridSystem(GraphicsDevice);
+
+            GraphicsDevice.Clear(Color.White);
+
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            fieldTexture = Content.Load<Texture2D>("field");
+            for (int i = 1; i <= 6; i++)
+            {
+                for (int j = i; j <= 6; j++)
+                {
+                    string place = "squares\\" + i.ToString() + "-" + j.ToString();
+                    listOfTextures.Add(new Texture(Content.Load<Texture2D>(place), place));
+                }
+            }
+
+        }
+
+        protected override void UnloadContent()
+        {
+
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+           
+
+            currentTime += gameTime.ElapsedGameTime.Milliseconds;
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+            if (currentTime > period)
+            {
+                MouseState currentMouseState = Mouse.GetState();
+
+                if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
+                {
+                    if ((currentMouseState.X > startPoint.X && currentMouseState.X < startPoint.X + 1080) && (currentMouseState.Y > 0 && currentMouseState.Y < 1080))
+                    {
+                        positionVector = new Vector2(((currentMouseState.X - startPoint.X) / Square.sizeOfGrid.X), ((currentMouseState.Y - startPoint.Y) / Square.sizeOfGrid.Y));
+                        position = GridCoords.GetPoint((int)positionVector.X, (int)positionVector.Y);
+                    }
+                }
+
+                lastMouseState = currentMouseState;
+
+                if (currentMouseState.LeftButton == ButtonState.Pressed)
+                {
+                    gridSystem.addSquare(1, 1, 0, "blue", (int)positionVector.X,(int)positionVector.Y);
+                }
+                if (currentMouseState.RightButton == ButtonState.Pressed)
+                {
+                    gridSystem.ClearSquares();
+                }
+            }
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            GraphicsDevice.Clear(Color.White);
+
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
+            spriteBatch.Draw(fieldTexture, startPoint, new Color(255, 255, 255, 120));
+
+            Square sq = new Square();
+            sq.Draw(1, 1, 0, 0, position, GraphicsDevice);
+
+            gridSystem.DrawAll();
+            spriteBatch.End();
+            spriteBatch.Dispose();
+            base.Draw(gameTime);
+        }
+        public static Texture2D GetTexture(string sqName)
+        {
+            for (int i = 0; i < listOfTextures.Count; i++)
+            {
+                if (((Texture)listOfTextures[i]).name.IndexOf(sqName) != -1)
+                {
+                    return ((Texture)listOfTextures[i]).texture;
+                }
+            }
+            return null;
+        }
+
+
+    }
+}
