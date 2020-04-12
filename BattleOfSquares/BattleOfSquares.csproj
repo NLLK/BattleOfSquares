@@ -42,8 +42,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Game1.cs" />
-    <Content Include="oldSquare - Копировать.txt" />
-    <Content Include="oldSquare.txt" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

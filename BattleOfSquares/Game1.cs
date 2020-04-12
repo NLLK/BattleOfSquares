@@ -9,12 +9,18 @@ namespace BattleOfSquares
 {
     public class Texture
     {//объект texture2d, но с именем отдельно
-        public Texture2D texture;
-        public string name;
-        public Texture(Texture2D t, string n)
+        public Texture2D texture;//текстура 
+        public string name;//имя, без имени папки
+        public int number;//номер, для перегрузки с интом
+        public Texture(Texture2D t, string n)//конструктор для квадратиков
         {
             texture = t;
             name = n;
+        }
+        public Texture(Texture2D t, int n)//конструктор для костей
+        {
+            texture = t;
+            number = n;
         }
     }
     public class GridCoords
@@ -64,11 +70,10 @@ namespace BattleOfSquares
             {
                 rotate = (rotate == 0) ? 1 : 0;
             }
-            public void Random()
+            public void Random(int dice1, int dice2)
             {
-                Random rnd = new Random();
-                int x = rnd.Next(1, 6);
-                int y = rnd.Next(1, 6);
+                int x = dice1;
+                int y = dice2;
                 if (y < x)
                 {
                     int t = x;
@@ -78,34 +83,34 @@ namespace BattleOfSquares
                 name = x.ToString() + "-" + y.ToString();
                 Console.WriteLine("Generated: x y: " + name);
             }
-            public void ChangeTeam()
+            public void ChangeTeam(int dice1, int dice2)
             {
-                Random();
+                Random(dice1, dice2);
                 team = (team == 0) ? 1 : 0;
             }
         }
-        public void Draw(int w, int h, int rotate, int team, int x, int y, GraphicsDevice gd)
+        public void Draw(int w, int h, int rotate, int team, int x, int y)
         {
             Vector2 position;
             if (rotate == 1)
             {
-                position = GridCoords.GetPoint(x, y+1).ToVector2();
+                position = GridCoords.GetPoint(x, y + 1).ToVector2();
             }
-           else position = GridCoords.GetPoint(x, y).ToVector2();
+            else position = GridCoords.GetPoint(x, y).ToVector2();
             Color teamColor = (team == 0) ? blueTeamColor : pinkTeamColor;
 
             string name = w.ToString() + "-" + h.ToString();
 
-            Texture2D sqTexture = Game1.GetTexture(name);
+            Texture2D sqTexture = Game1.GetSquareTexture(name);
 
             spriteBatch.Draw(sqTexture, position, null, teamColor, 4.712f * rotate, Vector2.Zero, 1f, SpriteEffects.None, 0.5f);
 
         }
-        public void Draw(string name, int rotate, int team, Point pos, GraphicsDevice gd)
+        public void Draw(string name, int rotate, int team, Point pos)
         {
             int w = Convert.ToInt16(name.Substring(0, 1));
             int h = Convert.ToInt16(name.Substring(2, 1));
-            Draw(w, h, rotate, team, pos.X, pos.Y, gd);
+            Draw(w, h, rotate, team, pos.X, pos.Y);
         }
         public void DrawInPixel(string name, int rotate, int team, Point pos, GraphicsDevice gd)
         {
@@ -115,12 +120,12 @@ namespace BattleOfSquares
             using (SpriteBatch sb = new SpriteBatch(gd))
             {
                 Vector2 position;
-                if (rotate==1) position = pos.ToVector2()+new Vector2(0,54);
+                if (rotate == 1) position = pos.ToVector2() + new Vector2(0, 54);
                 else position = pos.ToVector2();
 
                 Color teamColor = (team == 0) ? blueTeamColor : pinkTeamColor;
 
-                Texture2D sqTexture = Game1.GetTexture(name);
+                Texture2D sqTexture = Game1.GetSquareTexture(name);
 
                 spriteBatch.Draw(sqTexture, position, null, teamColor, 4.712f * rotate, Vector2.Zero, 1f, SpriteEffects.None, 1f);
 
@@ -129,36 +134,30 @@ namespace BattleOfSquares
     }
     public class GridSystem
     {
-        GraphicsDevice gd;
         int[,] gridArray = new int[20, 20];
 
         List<Square.SquareInfo> squaresList = new List<Square.SquareInfo>();
-
-        public GridSystem(GraphicsDevice gd)
-        {
-            this.gd = gd;
-        }
 
         public bool isItFit(int width, int height, int x, int y, int rotate)
         {
             if (rotate == 1)
             {//перевернутое
-                if (x > 19 || y  > 19 || y-width+1 <0) return false;
-                for (int j=y-width+1; j<=y; j++)
+                if (x + height> 20 || y > 19 || y - width + 1 < 0) return false;
+                for (int j = y - width + 1; j <= y; j++)
                 {
                     int sum = 0;
                     for (int i = x; i < x + height; i++)
                     {
                         sum += gridArray[j, i];
-                        if (sum>0 || gridArray[j, i]!=0)
+                        if (sum > 0 || gridArray[j, i] != 0)
                             return false;
                     }
                 }
             }
             else
             {//вертикальное
-                if (x + width > 20 || y + height > 20 ) return false;
-                for (int j=y;j<y+height; j++)
+                if (x + width > 20 || y + height > 20) return false;
+                for (int j = y; j < y + height; j++)
                 {
                     int sum = 0;
                     for (int i = x; i < x + width; i++)
@@ -172,6 +171,12 @@ namespace BattleOfSquares
 
             return true;
         }
+        public bool isItFit(string name, int rotate, Point positionPoint)
+        {
+            int w = Convert.ToInt16(name.Substring(0, 1));
+            int h = Convert.ToInt16(name.Substring(2, 1));
+            return isItFit(w, h, positionPoint.X, positionPoint.Y, rotate);
+        }
 
         public void addSquare(int width, int height, int rotate, int team, int x, int y)
         {
@@ -184,9 +189,9 @@ namespace BattleOfSquares
 
                 if (rotate == 1)
                 {//горизонтальное
-                    for (int j=y-width+1;j<=y; j++)
+                    for (int j = y - width + 1; j <= y; j++)
                     {
-                        for (int i=x; i<x+height; i++)
+                        for (int i = x; i < x + height; i++)
                         {
                             gridArray[j, i] = squaresList.Count;
                         }
@@ -194,9 +199,9 @@ namespace BattleOfSquares
                 }
                 else
                 {//вертикальное
-                    for (int j=y; j<y+height; j++)
+                    for (int j = y; j < y + height; j++)
                     {
-                        for (int i=x; i<x+width;i++)
+                        for (int i = x; i < x + width; i++)
                         {
                             gridArray[j, i] = squaresList.Count;
                         }
@@ -217,7 +222,7 @@ namespace BattleOfSquares
             {
                 Square sq = new Square(spriteBatch);
                 Square.SquareInfo el = squaresList[n];
-                sq.Draw(el.name, el.rotate, el.team, el.position, gd);
+                sq.Draw(el.name, el.rotate, el.team, el.position);
                 sq = null;
             }
         }
@@ -227,29 +232,162 @@ namespace BattleOfSquares
             gridArray = new int[20, 20];
         }
     }
+
+    public class Dice
+    {
+        public bool needToDraw;//нужно ли рисовать
+
+        static int timeForSide = 500;//сколько времени на одну сторону кости
+        static Vector2 startPoint = new Vector2(200, 100);//если в определенной точке, то нужна начальная точка
+
+        static float scale = 0.7f;//масштаб
+        static Vector2 addTo = new Vector2(0, 3 * scale);//вектор, на сколько изменять координаты
+
+
+        int currentTime = 0;//прошедшее время
+        int[] randoms = new int[6];//массив рандомных чисел
+        int currentSide = 1;//текущая сторона
+
+
+        Vector2 additionalVector = new Vector2(0, -100 * scale);//вектор для изменения координат
+
+
+        public int NewRoll(int diceNumber, int prCount)
+        {//запрос на отрисовку
+            needToDraw = true;
+            randoms = new int[6];
+            currentSide = 1;
+            currentTime = 0;
+            if (diceNumber == 1) return doRandom(diceNumber, 0);
+            else return doRandom(diceNumber, prCount);
+        }
+        public void Draw(SpriteBatch sb, int numberOfDices, Point mousePosition)
+        {
+            Vector2 mouseVector = mousePosition.ToVector2() + new Vector2(0, -200 * scale);
+
+            numberOfDices--;
+            Vector2 shiftPr = new Vector2(numberOfDices * 110 * scale, 100 * scale);
+            Vector2 shift = new Vector2(numberOfDices * 110 * scale, 0);
+            if (needToDraw == true)
+            {
+                currentTime += 16;
+                if (currentSide <= 6)
+                {
+                    if (currentTime >= timeForSide)//перелистывать, когда пришло время
+                    {
+                        currentTime = 0;
+                        currentSide++;//перелистывание
+                        additionalVector = Vector2.Zero;
+                    }
+                    if (currentSide != 7)
+                    {
+                        additionalVector += addTo;
+                        Texture2D diceTexture = Game1.GetDiceTexture(randoms[currentSide - 1]);//получение текстуры стороны
+                        if (currentSide != 1)
+                        {
+                            Texture2D dicePrevious = Game1.GetDiceTexture(randoms[currentSide - 2]);//получение текстуры предыдущей стороны
+                            sb.Draw(dicePrevious, mouseVector + shiftPr, null, Color.White, 0, Vector2.Zero, scale, SpriteEffects.None, 0.5f);//отрисовка предыдущей
+                            sb.Draw(diceTexture, mouseVector + additionalVector + shift, null, Color.White, 0, Vector2.Zero, scale, SpriteEffects.None, 1);//отрисовка этой
+                        }
+                        else
+                        {
+                            sb.Draw(diceTexture, mouseVector + shiftPr, null, Color.White, 0, Vector2.Zero, scale, SpriteEffects.None, 1);//отрисовка этой
+                        }
+                    }
+                }
+
+                if (currentSide == 7)
+                {
+                    if (currentTime <= 3 * timeForSide)
+                    {
+                        Texture2D diceTexture = Game1.GetDiceTexture(randoms[5]);//получение текстуры стороны
+                        sb.Draw(diceTexture, mouseVector + shiftPr, null, Color.White, 0, Vector2.Zero, scale, SpriteEffects.None, 1);//отрисовка
+                    }
+                    else
+                    {
+                        needToDraw = false;
+                    }
+
+                }
+            }
+        }
+        int doRandom(int diceNumber, int c)
+        {
+            //пиздец. Передавать массив другого дайса и сделать так, чтобы хотя бы первые 5 были другие. Ну или прочекать алгоритм с сайта лучше
+            Random rnd = new Random();
+            int count = 0;
+            if (diceNumber == 2)
+            {
+                for (int i = 0; i < c; i++)
+                {
+                    rnd.Next(1, 7);
+                }
+            }
+            for (int i = 0; i < 6; i++)
+            {
+                bool write = true;
+                int r;
+                r = rnd.Next(1, 7);
+                count++;
+                for (int j = 0; j <= i; j++)
+                {
+                    if (randoms[j] == r)
+                    {
+                        write = false;
+                        i--;
+                        break;
+                    }
+                }
+                if (write == true)
+                {
+                    randoms[i] = r;
+                }
+            }
+            return count;
+        }
+        public int GetRandom()
+        {
+            if (randoms[5] == 0)
+            {
+                return 1;
+            }
+            else return randoms[5];
+        }
+    }
+
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        MouseState lastMouseState;
+        MouseState lastMouseState;//положение мыши для сравнения на изменения ее пололжения
 
-        Texture2D fieldTexture;
+        Texture2D fieldTexture;//текстура поля
+        Texture2D startMenuTexture;//текстура стартового меню
+        Texture2D startMenuStButton;//текстура кнопки старт стартового меню
+        Texture2D startMenuStPrButton;//текстура кнопки старт стартового меню в нажатом состоянии
 
         int currentTimeKeyboard = 0; // сколько времени прошло, для клавиатуры
         int periodKeyboard = 150; // частота обновления в миллисекундах
 
         int currentTimeMouse = 0; // сколько времени прошло, для клавиатуры
-        int periodMouse = 50; // частота обновления в миллисекундах
+        int periodMouse = 100; // частота обновления в миллисекундах
+        bool pressed = false;
 
         Point mousePosition;
         Point positionPoint = new Point(0, 0);
 
-        GridSystem gridSystem;
+        GridSystem gridSystem;//управление сеткой и прямоугольниками на ней
+        Dice dice;//кости, анимация и рандом
+        Dice dice2;//кости, анимация и рандом, 2 кость
+        Square.SquareInfo placingSquare;//квадратик, который будем ставить, информация о нем
 
-        Square.SquareInfo placingSquare;
+        static List<Texture> squareTextures = new List<Texture>();//текстуры прямоугольников
+        static List<Texture> diceTextures = new List<Texture>();//текстуры костей
 
-        static ArrayList listOfTextures = new ArrayList();
-        public static Vector2 startPoint = new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2 - 590, 0);
+        public static Vector2 startPoint = new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2 - 590, 0);//начальная точка отрисовки поля
+
+        int pageNumber = 1;//номер страницы - определяет рисовать меню - 0, или игру - 1
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -262,19 +400,22 @@ namespace BattleOfSquares
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.ApplyChanges();
 
-          //  graphics.ToggleFullScreen();  
+            //  graphics.ToggleFullScreen();  
 
-            gridSystem = new GridSystem(GraphicsDevice);
-
+            gridSystem = new GridSystem();
+            dice = new Dice();
+            dice2 = new Dice();
             GraphicsDevice.Clear(Color.White);
             placingSquare = new Square.SquareInfo(new Point(0, 0), "1-1", 0, 0);
+
+
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             fieldTexture = Content.Load<Texture2D>("field");
-            for (int i = 1; i <= 6; i++)
+            for (int i = 1; i <= 6; i++) //заполняем список текстур квадратиков
             {
                 for (int j = i; j <= 6; j++)
                 {
@@ -282,10 +423,14 @@ namespace BattleOfSquares
                     string reverseName = j.ToString() + "-" + i.ToString();
                     string place = "squares\\" + name;
 
-                    listOfTextures.Add(new Texture(Content.Load<Texture2D>(place), name + " " + reverseName));
+                    squareTextures.Add(new Texture(Content.Load<Texture2D>(place), name + " " + reverseName)); //записываем в спискок текстуру и название прямоугольника в двух видах, чтобы успешно осуществлять поиск в GetSquareTexture
                 }
             }
-
+            for (int i = 1; i <= 6; i++)//заполняем список костей
+            {
+                string place = "dices\\" + i.ToString();
+                diceTextures.Add(new Texture(Content.Load<Texture2D>(place), i));
+            }
         }
 
         protected override void UnloadContent()
@@ -297,6 +442,92 @@ namespace BattleOfSquares
             currentTimeMouse += gameTime.ElapsedGameTime.Milliseconds;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            switch (pageNumber)
+            {
+                case 0:
+                    {
+                        UpdateMenu();
+                        break;
+                    }
+                case 1:
+                    {
+                        UpdateGame();
+                        break;
+                    }
+            }
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.White);
+
+            switch (pageNumber)
+            {
+                case 0:
+                    {
+                        DrawMenu();
+                        break;
+                    }
+                case 1:
+                    {
+                        DrawGame();
+                        break;
+                    }
+            }
+
+            base.Draw(gameTime);
+        }
+
+        private void DrawMenu()
+        {
+            
+        }
+
+        private void DrawGame()
+        {
+            using (spriteBatch = new SpriteBatch(GraphicsDevice))
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate);
+
+                spriteBatch.Draw(fieldTexture, startPoint, null, new Color(255, 255, 255, 120), 0, Vector2.Zero, 1f, SpriteEffects.None, 0); //поле
+                gridSystem.DrawAll(spriteBatch);//все квадратики
+
+                dice.Draw(spriteBatch, 1, mousePosition + new Point(0, 54));
+                dice2.Draw(spriteBatch, 2, mousePosition + new Point(0, 54));
+
+                if (dice.needToDraw == false)
+                {
+                    Square sq = new Square(spriteBatch);
+                    sq.Draw(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);
+                    sq.DrawInPixel("1-1", placingSquare.rotate, placingSquare.team, mousePosition, GraphicsDevice);
+                }
+
+                spriteBatch.End();
+            }
+        }
+
+        public static Texture2D GetSquareTexture(string sqName)
+        {
+            for (int i = 0; i < squareTextures.Count; i++)
+            {
+                if (squareTextures[i].name.IndexOf(sqName) != -1)
+                {
+                    return (squareTextures[i]).texture;
+                }
+            }
+            return null;
+        }
+        public static Texture2D GetDiceTexture(int num)
+        {
+            return (diceTextures[num - 1]).texture;
+        }
+        void UpdateMenu()
+        {
+
+        }
+        void UpdateGame()
+        {
 
             MouseState currentMouseState = Mouse.GetState();
 
@@ -304,13 +535,14 @@ namespace BattleOfSquares
             {
                 if ((currentMouseState.X > startPoint.X && currentMouseState.X < startPoint.X + 1080) && (currentMouseState.Y > 0 && currentMouseState.Y < 1080))
                 {
-                    positionPoint = new Point((int)((currentMouseState.X - startPoint.X) / Square.sizeOfGrid.X), (int)((currentMouseState.Y - startPoint.Y) / Square.sizeOfGrid.Y));
-                    mousePosition = new Point(currentMouseState.X-27, currentMouseState.Y-27);//возможно стоит переделать для удобства
+                    positionPoint = new Point((int)((currentMouseState.X - startPoint.X) / Square.sizeOfGrid.X), (int)((currentMouseState.Y - startPoint.Y) / Square.sizeOfGrid.Y));//относительные координаты
+                    mousePosition = new Point(currentMouseState.X - 27, currentMouseState.Y - 27);//возможно стоит переделать для удобства
                 }
 
             }
 
             lastMouseState = currentMouseState;
+
             if (currentTimeKeyboard > periodKeyboard)
             {
                 currentTimeKeyboard -= periodKeyboard;
@@ -320,63 +552,47 @@ namespace BattleOfSquares
                 {
                     placingSquare.ChangeRotate();
                 }
-                if (keyboardState.IsKeyDown(Keys.F))
-                {
-                    placingSquare.Random();
-                }
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
-                    placingSquare.ChangeTeam();
+                    int prCount = dice.NewRoll(1, 0);
+                    int count = dice2.NewRoll(2, prCount);
                 }
             }
-            if (currentTimeMouse > periodMouse)
+
+            if (currentMouseState.LeftButton == ButtonState.Pressed)
             {
-                currentTimeMouse -= periodMouse;
-                if (currentMouseState.LeftButton == ButtonState.Pressed)
+                if (pressed == false)
                 {
-                    Console.WriteLine("pressed:" +positionPoint.X.ToString() + "; " + positionPoint.Y.ToString());
-                    gridSystem.addSquare(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);
-                }
-                if (currentMouseState.RightButton == ButtonState.Pressed)
-                {
-                    gridSystem.ClearSquares();
+                    pressed = true;
                 }
             }
-            base.Update(gameTime);
-        }
-
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.White);
-
-            using (spriteBatch = new SpriteBatch(GraphicsDevice))
+            if (currentMouseState.LeftButton == ButtonState.Released)
             {
-
-                spriteBatch.Begin(SpriteSortMode.Immediate);
-
-                spriteBatch.Draw(fieldTexture, startPoint, null, new Color(255, 255, 255, 120), 0, Vector2.Zero, 1f, SpriteEffects.None, 0); //поле
-                gridSystem.DrawAll(spriteBatch);//все квадратики
-                Square sq = new Square(spriteBatch);
-
-                sq.Draw(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint, GraphicsDevice);
-                sq.DrawInPixel("1-1", placingSquare.rotate, placingSquare.team, mousePosition , GraphicsDevice);
-
-                spriteBatch.End();
-
-            }
-
-            base.Draw(gameTime);
-        }
-        public static Texture2D GetTexture(string sqName)
-        {
-            for (int i = 0; i < listOfTextures.Count; i++)
-            {
-                if (((Texture)listOfTextures[i]).name.IndexOf(sqName) != -1)
+                if (pressed == true)//клавиша была нажата
                 {
-                    return ((Texture)listOfTextures[i]).texture;
+                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint))//место подходит для установки
+                    {
+                        Console.WriteLine("pressed:" + positionPoint.X.ToString() + "; " + positionPoint.Y.ToString());
+                        gridSystem.addSquare(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);//добавляем в систему
+
+                        int prCount = dice.NewRoll(1, 0);
+                        int count = dice2.NewRoll(2, prCount);
+                        placingSquare.ChangeTeam(dice.GetRandom(), dice2.GetRandom());
+
+                        pressed = false;
+                    }
+                    else
+                    {
+                        placingSquare.team = 3;
+                        pressed = false;
+                    }
                 }
             }
-            return null;
+            if (currentMouseState.RightButton == ButtonState.Pressed)
+            {
+                gridSystem.ClearSquares();
+            }
+
         }
     }
 }
