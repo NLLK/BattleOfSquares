@@ -53,7 +53,7 @@ namespace BattleOfSquares
             public string name;
             public int team;
             public int rotate;
-            int teamWas=0;
+            int teamWas=3;
             public bool wrong=false;
             public SquareInfo(Point position, string name, int rotate, int team)
             {
@@ -98,10 +98,10 @@ namespace BattleOfSquares
                 }
                 else
                 {
-                    if (teamWas != 0)
+                    if (teamWas != 3)
                     {
                         team = teamWas;
-                        teamWas = 0;
+                        teamWas = 3;
                         wrong = false;
                     }
                 }
