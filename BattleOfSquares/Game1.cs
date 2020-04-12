@@ -41,6 +41,7 @@ namespace BattleOfSquares
 
         static Color blueTeamColor = new Color(102, 153, 255, 255);
         static Color pinkTeamColor = new Color(255, 51, 153, 255);
+        static Color wrongPlaceColor = new Color(255, 0, 0, 255);
         SpriteBatch spriteBatch;
         public Square(SpriteBatch spriteBatch)
         {
@@ -52,6 +53,8 @@ namespace BattleOfSquares
             public string name;
             public int team;
             public int rotate;
+            int teamWas=0;
+            public bool wrong=false;
             public SquareInfo(Point position, string name, int rotate, int team)
             {
                 this.position = position;
@@ -70,7 +73,7 @@ namespace BattleOfSquares
             {
                 rotate = (rotate == 0) ? 1 : 0;
             }
-            public void Random(int dice1, int dice2)
+            public void ChangeTeam(int dice1, int dice2)
             {
                 int x = dice1;
                 int y = dice2;
@@ -82,11 +85,26 @@ namespace BattleOfSquares
                 }
                 name = x.ToString() + "-" + y.ToString();
                 Console.WriteLine("Generated: x y: " + name);
-            }
-            public void ChangeTeam(int dice1, int dice2)
-            {
-                Random(dice1, dice2);
                 team = (team == 0) ? 1 : 0;
+            }
+
+            public void WrongPlace(int isIt)
+            {
+                if (isIt == 1)
+                {
+                    teamWas = team;
+                    team = 2;
+                    wrong = true;
+                }
+                else
+                {
+                    if (teamWas != 0)
+                    {
+                        team = teamWas;
+                        teamWas = 0;
+                        wrong = false;
+                    }
+                }
             }
         }
         public void Draw(int w, int h, int rotate, int team, int x, int y)
@@ -97,7 +115,14 @@ namespace BattleOfSquares
                 position = GridCoords.GetPoint(x, y + 1).ToVector2();
             }
             else position = GridCoords.GetPoint(x, y).ToVector2();
-            Color teamColor = (team == 0) ? blueTeamColor : pinkTeamColor;
+            Color teamColor;
+            switch (team)
+            {
+                case 0: { teamColor = blueTeamColor; break; }
+                case 1: { teamColor = pinkTeamColor; break; }
+                case 2: { teamColor = wrongPlaceColor; break; }
+                default: { teamColor = Color.Black; break; }
+            }
 
             string name = w.ToString() + "-" + h.ToString();
 
@@ -116,14 +141,20 @@ namespace BattleOfSquares
         {
             int w = Convert.ToInt16(name.Substring(0, 1));
             int h = Convert.ToInt16(name.Substring(2, 1));
-            //Point p = GridCoords.GetXY(pos);
             using (SpriteBatch sb = new SpriteBatch(gd))
             {
                 Vector2 position;
                 if (rotate == 1) position = pos.ToVector2() + new Vector2(0, 54);
                 else position = pos.ToVector2();
 
-                Color teamColor = (team == 0) ? blueTeamColor : pinkTeamColor;
+                Color teamColor;
+                switch (team)
+                {
+                    case 0: { teamColor = blueTeamColor; break; }
+                    case 1: { teamColor = pinkTeamColor; break; }
+                    case 2: { teamColor = wrongPlaceColor; break; }
+                    default: { teamColor = Color.Black; break; }
+                }
 
                 Texture2D sqTexture = Game1.GetSquareTexture(name);
 
@@ -142,7 +173,7 @@ namespace BattleOfSquares
         {
             if (rotate == 1)
             {//перевернутое
-                if (x + height> 20 || y > 19 || y - width + 1 < 0) return false;
+                if (x + height > 20 || y > 19 || y - width + 1 < 0) return false;
                 for (int j = y - width + 1; j <= y; j++)
                 {
                     int sum = 0;
@@ -232,7 +263,6 @@ namespace BattleOfSquares
             gridArray = new int[20, 20];
         }
     }
-
     public class Dice
     {
         public bool needToDraw;//нужно ли рисовать
@@ -365,12 +395,14 @@ namespace BattleOfSquares
         Texture2D startMenuTexture;//текстура стартового меню
         Texture2D startMenuStButton;//текстура кнопки старт стартового меню
         Texture2D startMenuStPrButton;//текстура кнопки старт стартового меню в нажатом состоянии
+        Texture2D startMenuCoursor;//текстура курсора стартового меню
 
         int currentTimeKeyboard = 0; // сколько времени прошло, для клавиатуры
         int periodKeyboard = 150; // частота обновления в миллисекундах
+        int currentTimeWrong = 0;
+        int periodWrong = 300;
 
-        int currentTimeMouse = 0; // сколько времени прошло, для клавиатуры
-        int periodMouse = 100; // частота обновления в миллисекундах
+
         bool pressed = false;
 
         Point mousePosition;
@@ -386,7 +418,7 @@ namespace BattleOfSquares
 
         public static Vector2 startPoint = new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2 - 590, 0);//начальная точка отрисовки поля
 
-        int pageNumber = 1;//номер страницы - определяет рисовать меню - 0, или игру - 1
+        int pageNumber = 0;//номер страницы - определяет рисовать меню - 0, или игру - 1
 
         public Game1()
         {
@@ -406,7 +438,7 @@ namespace BattleOfSquares
             dice = new Dice();
             dice2 = new Dice();
             GraphicsDevice.Clear(Color.White);
-            placingSquare = new Square.SquareInfo(new Point(0, 0), "1-1", 0, 0);
+            placingSquare = new Square.SquareInfo(new Point(0, 0), "1-1", 0, 1);
 
 
             base.Initialize();
@@ -415,6 +447,10 @@ namespace BattleOfSquares
         protected override void LoadContent()
         {
             fieldTexture = Content.Load<Texture2D>("field");
+            startMenuTexture = Content.Load<Texture2D>("StartMenu\\startMenu");
+            startMenuStButton = Content.Load<Texture2D>("StartMenu\\button");
+            startMenuStPrButton = Content.Load<Texture2D>("StartMenu\\pressedButton");
+            startMenuCoursor = Content.Load<Texture2D>("StartMenu\\coursor");
             for (int i = 1; i <= 6; i++) //заполняем список текстур квадратиков
             {
                 for (int j = i; j <= 6; j++)
@@ -439,7 +475,6 @@ namespace BattleOfSquares
         protected override void Update(GameTime gameTime)
         {
             currentTimeKeyboard += gameTime.ElapsedGameTime.Milliseconds;
-            currentTimeMouse += gameTime.ElapsedGameTime.Milliseconds;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             switch (pageNumber)
@@ -456,6 +491,119 @@ namespace BattleOfSquares
                     }
             }
             base.Update(gameTime);
+        }
+        void UpdateMenu()
+        {
+            MouseState currentMouseState = Mouse.GetState();
+
+            if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
+            {
+                mousePosition = new Point(currentMouseState.X, currentMouseState.Y);//возможно стоит переделать для удобства
+            }
+            if ((currentMouseState.X > 696 && currentMouseState.X < 1223) && (currentMouseState.Y > 605 && currentMouseState.Y < 703))
+            {
+                if (currentMouseState.LeftButton == ButtonState.Pressed)
+                {
+                    if (pressed == false)
+                    {
+                        pressed = true;
+                    }
+                }
+                if (currentMouseState.LeftButton == ButtonState.Released)
+                {
+                    if (pressed == true)//клавиша была нажата
+                    {
+                        pressed = false;
+                        pageNumber = 1;
+
+                        int prCount = dice.NewRoll(1, 0);
+                        int count = dice2.NewRoll(2, prCount);
+                        placingSquare.ChangeTeam(dice.GetRandom(),dice2.GetRandom());
+                    }
+
+                }
+            }
+        }
+        void UpdateGame()
+        {
+
+            MouseState currentMouseState = Mouse.GetState();
+
+            if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
+            {
+                if ((currentMouseState.X > startPoint.X && currentMouseState.X < startPoint.X + 1080) && (currentMouseState.Y > 0 && currentMouseState.Y < 1080))
+                {
+                    positionPoint = new Point((int)((currentMouseState.X - startPoint.X) / Square.sizeOfGrid.X), (int)((currentMouseState.Y - startPoint.Y) / Square.sizeOfGrid.Y));//относительные координаты
+                    mousePosition = new Point(currentMouseState.X - 27, currentMouseState.Y - 27);//возможно стоит переделать для удобства
+                }
+
+            }
+
+            lastMouseState = currentMouseState;
+
+            if (currentTimeKeyboard > periodKeyboard)
+            {
+                currentTimeKeyboard -= periodKeyboard;
+                KeyboardState keyboardState = Keyboard.GetState();
+
+                if (keyboardState.IsKeyDown(Keys.R))
+                {
+                    placingSquare.ChangeRotate();
+                }
+                if (keyboardState.IsKeyDown(Keys.Space))
+                {
+                    int prCount = dice.NewRoll(1, 0);
+                    int count = dice2.NewRoll(2, prCount);
+                }
+            }
+
+            if (placingSquare.wrong)
+            {
+                currentTimeWrong += 16;
+            }
+            if (currentTimeWrong >= periodWrong)
+            {
+                currentTimeWrong = 0;
+                placingSquare.WrongPlace(0);
+            }
+
+            if (currentMouseState.LeftButton == ButtonState.Pressed)
+            {
+                if (pressed == false)
+                {
+                    pressed = true;
+                }
+            }
+            if (currentMouseState.LeftButton == ButtonState.Released)
+            {
+                if (pressed == true)//клавиша была нажата
+                {
+                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint))//место подходит для установки
+                    {
+                        if (dice.needToDraw == false)
+                        {
+                            Console.WriteLine("pressed:" + positionPoint.X.ToString() + "; " + positionPoint.Y.ToString());
+                            gridSystem.addSquare(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);//добавляем в систему
+
+                            int prCount = dice.NewRoll(1, 0);
+                            int count = dice2.NewRoll(2, prCount);
+                            placingSquare.ChangeTeam(dice.GetRandom(), dice2.GetRandom());
+
+                            pressed = false;
+                        }
+                    }
+                    else 
+                    {
+                        placingSquare.WrongPlace(1);
+                        pressed = false;
+                    }
+                }
+            }
+            if (currentMouseState.RightButton == ButtonState.Pressed)
+            {
+                gridSystem.ClearSquares();
+            }
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -481,7 +629,22 @@ namespace BattleOfSquares
 
         private void DrawMenu()
         {
-            
+            using (spriteBatch = new SpriteBatch(GraphicsDevice))
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate);
+
+                spriteBatch.Draw(startMenuTexture, new Vector2(0, 0), Color.White); //фон
+
+                if (pressed == false)
+                {
+                    spriteBatch.Draw(startMenuStButton, new Vector2(684, 600), Color.White); //кнопка не нажата
+                }
+                else spriteBatch.Draw(startMenuStPrButton, new Vector2(696, 605), Color.White); //кнопка нажата
+
+                spriteBatch.Draw(startMenuCoursor, mousePosition.ToVector2(), Color.White); //курсор
+
+                spriteBatch.End();
+            }
         }
 
         private void DrawGame()
@@ -522,77 +685,6 @@ namespace BattleOfSquares
         {
             return (diceTextures[num - 1]).texture;
         }
-        void UpdateMenu()
-        {
 
-        }
-        void UpdateGame()
-        {
-
-            MouseState currentMouseState = Mouse.GetState();
-
-            if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
-            {
-                if ((currentMouseState.X > startPoint.X && currentMouseState.X < startPoint.X + 1080) && (currentMouseState.Y > 0 && currentMouseState.Y < 1080))
-                {
-                    positionPoint = new Point((int)((currentMouseState.X - startPoint.X) / Square.sizeOfGrid.X), (int)((currentMouseState.Y - startPoint.Y) / Square.sizeOfGrid.Y));//относительные координаты
-                    mousePosition = new Point(currentMouseState.X - 27, currentMouseState.Y - 27);//возможно стоит переделать для удобства
-                }
-
-            }
-
-            lastMouseState = currentMouseState;
-
-            if (currentTimeKeyboard > periodKeyboard)
-            {
-                currentTimeKeyboard -= periodKeyboard;
-                KeyboardState keyboardState = Keyboard.GetState();
-
-                if (keyboardState.IsKeyDown(Keys.R))
-                {
-                    placingSquare.ChangeRotate();
-                }
-                if (keyboardState.IsKeyDown(Keys.Space))
-                {
-                    int prCount = dice.NewRoll(1, 0);
-                    int count = dice2.NewRoll(2, prCount);
-                }
-            }
-
-            if (currentMouseState.LeftButton == ButtonState.Pressed)
-            {
-                if (pressed == false)
-                {
-                    pressed = true;
-                }
-            }
-            if (currentMouseState.LeftButton == ButtonState.Released)
-            {
-                if (pressed == true)//клавиша была нажата
-                {
-                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint))//место подходит для установки
-                    {
-                        Console.WriteLine("pressed:" + positionPoint.X.ToString() + "; " + positionPoint.Y.ToString());
-                        gridSystem.addSquare(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);//добавляем в систему
-
-                        int prCount = dice.NewRoll(1, 0);
-                        int count = dice2.NewRoll(2, prCount);
-                        placingSquare.ChangeTeam(dice.GetRandom(), dice2.GetRandom());
-
-                        pressed = false;
-                    }
-                    else
-                    {
-                        placingSquare.team = 3;
-                        pressed = false;
-                    }
-                }
-            }
-            if (currentMouseState.RightButton == ButtonState.Pressed)
-            {
-                gridSystem.ClearSquares();
-            }
-
-        }
     }
 }
