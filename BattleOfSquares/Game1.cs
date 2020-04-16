@@ -2,9 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-
 namespace BattleOfSquares
 {
     public class Texture
@@ -87,7 +85,6 @@ namespace BattleOfSquares
                 Console.WriteLine("Generated: x y: " + name);
                 team = (team == 0) ? 1 : 0;
             }
-
             public void WrongPlace(int isIt)
             {
                 if (isIt == 1)
@@ -168,10 +165,10 @@ namespace BattleOfSquares
         int[,] gridArray = new int[20, 20];
 
         List<Square.SquareInfo> squaresList = new List<Square.SquareInfo>();
-        int sum1;
-        int sum2;
+        int sumOfSquaresBlue;
+        int sumOfSquaresPink;
         public bool isItFit(int width, int height, int x, int y, int rotate, int team)
-        {
+        {//вмещается ли?
             if (rotate == 1)
             {
                 y += 1 - width;
@@ -180,7 +177,7 @@ namespace BattleOfSquares
                 width = height;
                 height = temp;
             }
-            if (x + width > 20 || y + height > 20) return false;
+            if (x + width > 20 || y + height > 20|| y<0) return false;
             for (int j = y; j < y + height; j++)
             {
                 int sum = 0;
@@ -200,21 +197,19 @@ namespace BattleOfSquares
             int h = Convert.ToInt16(name.Substring(2, 1));
             return isItFit(w, h, positionPoint.X, positionPoint.Y, rotate, team);
         }
-        public bool isOnRightPlace(int width, int height, int x, int y, int team)
+        public bool isOnRightPlace(int width, int height, int x, int y, int team)//на правильное ли место ставим?
         {
             if (team == 0)//синие
-            {
+            {  
                 if (x == 0 && y == 0)//для первого
-                {
                     return true;
-                }
                 if (x == 0)//касается левой границы
                     x++;
                 if (y == 0)//касается верхней границы
                     y++;
-                if (x + width >= 19)//касается левой границы
+                if (x + width > 19)//касается правой границы
                     width--;
-                if (y + height >= 19)//касается нижней границы
+                if (y + height > 19)//касается нижней границы
                     height--;
                 for (int j = y - 1; j < y + height; j++)//есть ли рядом что-то
                 {
@@ -226,11 +221,9 @@ namespace BattleOfSquares
             }
             else if (team == 1)//розовые
             {
-                if (x + width == 20 && y + height == 20)//для первого
-                {
-                    return true;
-                }
 
+                if (x + width == 20 && y + height == 20)//для первого
+                    return true;
                 if (x == 0)//касается левой границы
                     x++;
                 if (y == 0)//касается верхней границы
@@ -249,20 +242,36 @@ namespace BattleOfSquares
             }
             return false;
         }
+        public bool isItTheEnd()
+        {
+            
+
+            for (int j = 0; j <= 19; j++)
+            {
+                for (int i = 0; i <= 19; i++)
+                {
+                    if (gridArray[j, i] == 0)
+                    {
+
+                    }
+                }
+            }
+            return false;
+        }
         public void addSquare(int width, int height, int rotate, int team, int x, int y)
         {
             Point coords = new Point(x, y);
 
             if (isItFit(width, height, x, y, rotate, team))
             {
-                if (squaresList.Count % 2 == 0)
-                {
-                    sum1 += height * width;
-                }
-                else sum2 += height * width;
-                Console.WriteLine("sum1 =" + sum1.ToString() + "\nsum2 = " + sum2.ToString());
                 Square.SquareInfo el = new Square.SquareInfo(coords, height.ToString() + "-" + width.ToString(), rotate, team);
                 squaresList.Add(el);
+                el = null;
+                if (squaresList.Count % 2 == 1)
+                {
+                    sumOfSquaresBlue += height * width;
+                }
+                else sumOfSquaresPink += height * width;
 
                 if (rotate == 1)
                 {
@@ -272,8 +281,6 @@ namespace BattleOfSquares
                     width = height;
                     height = temp;
                 }
-
-
                 for (int j = y; j < y + height; j++)
                 {
                     for (int i = x; i < x + width; i++)
@@ -281,8 +288,16 @@ namespace BattleOfSquares
                         gridArray[j, i] = squaresList.Count;
                     }
                 }
-
-                el = null;
+                for (int i = 0; i <= 19; i++)
+                {
+                    for (int j = 0; j <= 19; j++)
+                    {
+                        if (gridArray[i,j]>=10) Console.Write(gridArray[i, j].ToString() + ",");
+                        else
+                        Console.Write(gridArray[i, j].ToString() + " ,");
+                    }
+                    Console.WriteLine("\n");
+                }
             }
         }
         public void addSquare(string name, int rotate, int team, Point positionPoint)
@@ -300,11 +315,24 @@ namespace BattleOfSquares
                 sq.Draw(el.name, el.rotate, el.team, el.position);
                 sq = null;
             }
+            DrawScore(spriteBatch);
+        }
+        private void DrawScore(SpriteBatch spriteBatch)
+        {
+            Color blueTeamColor = new Color(102, 153, 255, 255);
+            Color pinkTeamColor = new Color(255, 51, 153, 255);
+
+            SpriteFont scoreBlue = Game1.GetScoreSpriteFont(0);
+            SpriteFont scorePink = Game1.GetScoreSpriteFont(1);
+            spriteBatch.DrawString(scoreBlue, sumOfSquaresBlue.ToString(), new Vector2(1500, 100), blueTeamColor);
+            spriteBatch.DrawString(scorePink, sumOfSquaresPink.ToString(), new Vector2(1500, 150), pinkTeamColor);
         }
         public void ClearSquares()
         {
             squaresList.Clear();
             gridArray = new int[20, 20];
+            sumOfSquaresBlue = 0;
+            sumOfSquaresPink = 0;
         }
     }
     public class Dice
@@ -317,11 +345,9 @@ namespace BattleOfSquares
         static float scale = 0.7f;//масштаб
         static Vector2 addTo = new Vector2(0, 5 * scale);//вектор, на сколько изменять координаты
 
-
         int currentTime = 0;//прошедшее время
         int[] randoms = new int[6];//массив рандомных чисел
         int currentSide = 1;//текущая сторона
-
 
         Vector2 additionalVector = new Vector2(0, -100 * scale);//вектор для изменения координат
 
@@ -427,7 +453,6 @@ namespace BattleOfSquares
             else return randoms[5];
         }
     }
-
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
@@ -439,6 +464,9 @@ namespace BattleOfSquares
         Texture2D startMenuStButton;//текстура кнопки старт стартового меню
         Texture2D startMenuStPrButton;//текстура кнопки старт стартового меню в нажатом состоянии
         Texture2D startMenuCoursor;//текстура курсора стартового меню
+        SpriteFont controlHelp;
+
+        bool hideHelp = false;//скрывать подсказку
 
         int currentTimeKeyboard = 0; // сколько времени прошло, для клавиатуры
         int periodKeyboard = 150; // частота обновления в миллисекундах
@@ -457,6 +485,7 @@ namespace BattleOfSquares
 
         static List<Texture> squareTextures = new List<Texture>();//текстуры прямоугольников
         static List<Texture> diceTextures = new List<Texture>();//текстуры костей
+        static List<SpriteFont> scoreSpriteFont = new List<SpriteFont>();//spriteFont для очков
 
         public static Vector2 startPoint = new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2 - 590, 0);//начальная точка отрисовки поля
 
@@ -495,6 +524,7 @@ namespace BattleOfSquares
             startMenuStButton = Content.Load<Texture2D>("StartMenu\\button");
             startMenuStPrButton = Content.Load<Texture2D>("StartMenu\\pressedButton");
             startMenuCoursor = Content.Load<Texture2D>("StartMenu\\coursor");
+            controlHelp = Content.Load<SpriteFont>("controlHelp"); 
             for (int i = 1; i <= 6; i++) //заполняем список текстур квадратиков
             {
                 for (int j = i; j <= 6; j++)
@@ -511,6 +541,9 @@ namespace BattleOfSquares
                 string place = "dices\\" + i.ToString();
                 diceTextures.Add(new Texture(Content.Load<Texture2D>(place), i));
             }
+            scoreSpriteFont.Add(Content.Load<SpriteFont>("scoreBlue"));
+            scoreSpriteFont.Add(Content.Load<SpriteFont>("scorePink"));
+            controlHelp = Content.Load<SpriteFont>("controlHelp");
         }
 
         protected override void UnloadContent()
@@ -569,7 +602,6 @@ namespace BattleOfSquares
         }
         void UpdateGame()
         {
-
             MouseState currentMouseState = Mouse.GetState();
 
             if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
@@ -596,6 +628,12 @@ namespace BattleOfSquares
                 {
                     int prCount = dice.NewRoll(1, 0);
                     int count = dice2.NewRoll(2, prCount);
+                }
+                if (keyboardState.IsKeyDown(Keys.H))
+                {
+                    if (hideHelp == false)
+                        hideHelp = true;
+                    else hideHelp = false;
                 }
             }
 
@@ -624,7 +662,6 @@ namespace BattleOfSquares
                     {
                         if (dice.needToDraw == false)
                         {
-                            Console.WriteLine("pressed:" + positionPoint.X.ToString() + "; " + positionPoint.Y.ToString());
                             gridSystem.addSquare(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);//добавляем в систему
 
                             int prCount = dice.NewRoll(1, 0);
@@ -648,7 +685,6 @@ namespace BattleOfSquares
             }
 
         }
-
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
@@ -709,6 +745,18 @@ namespace BattleOfSquares
                     sq.DrawInPixel("1-1", placingSquare.rotate, placingSquare.team, mousePosition, GraphicsDevice);
                 }
 
+                string helpInfo = "Press R to rotate a rectangle\n\n"
+                                + "Press LMB to place a rectangle\n\n"
+                                + "If you have 1*1 or 6*6 rectangle\n"
+                                + "Use scroll wheel to increase or\n"
+                                + "decrease your rectangle\n\n"
+                                + "Press F for pay respect";
+
+                if (hideHelp == false)
+                {
+                    spriteBatch.DrawString(controlHelp, "Press H for open help [+]", new Vector2(1500, 900), Color.Gray);
+                }
+                else spriteBatch.DrawString(controlHelp, helpInfo, new Vector2(1500,800), Color.Gray);
                 spriteBatch.End();
             }
         }
@@ -727,6 +775,10 @@ namespace BattleOfSquares
         public static Texture2D GetDiceTexture(int num)
         {
             return (diceTextures[num - 1]).texture;
+        }
+        public static SpriteFont GetScoreSpriteFont(int num)
+        {
+            return (scoreSpriteFont[num]);
         }
 
     }
