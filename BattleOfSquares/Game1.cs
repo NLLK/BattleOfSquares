@@ -53,8 +53,8 @@ namespace BattleOfSquares
             public string name;
             public int team;
             public int rotate;
-            int teamWas=3;
-            public bool wrong=false;
+            int teamWas = 3;
+            public bool wrong = false;
             public SquareInfo(Point position, string name, int rotate, int team)
             {
                 this.position = position;
@@ -168,7 +168,8 @@ namespace BattleOfSquares
         int[,] gridArray = new int[20, 20];
 
         List<Square.SquareInfo> squaresList = new List<Square.SquareInfo>();
-
+        int sum1;
+        int sum2;
         public bool isItFit(int width, int height, int x, int y, int rotate)
         {
             if (rotate == 1)
@@ -199,7 +200,6 @@ namespace BattleOfSquares
                     }
                 }
             }
-
             return true;
         }
         public bool isItFit(string name, int rotate, Point positionPoint)
@@ -208,13 +208,81 @@ namespace BattleOfSquares
             int h = Convert.ToInt16(name.Substring(2, 1));
             return isItFit(w, h, positionPoint.X, positionPoint.Y, rotate);
         }
+        public bool isFirstOnRightPlace(int width, int height, int x, int y, int rotate, int team)
+        {
+            if (rotate == 1)
+            {
+                y += 1 - width;
 
+                int temp = width;
+                width = height;
+                height = temp;
+            }
+            if (team == 0)//синие
+            {
+                if (x == 0 && y == 0)//для первого
+                {
+                    return true;
+                }
+                if (x == 0)//касается левой границы
+                    x++;
+                if (y == 0)//касается верхней границы
+                    y++;
+                if (x + width >= 19)//касается левой границы
+                    width--;
+                if (y + height >= 19)//касается нижней границы
+                    height--;
+                for (int j = y - 1; j < y + height; j++)//есть ли рядом что-то
+                {
+                    for (int i = x - 1; i < x + width; i++)
+                    {
+                        if (gridArray[j, i] % 2 == 1) return true;
+                    }
+                }
+            }
+            else if (team == 1)//розовые
+            {
+                if (x + width == 20 && y + height == 20)//для первого
+                {
+                    return true;
+                }
+
+                if (x == 0)//касается левой границы
+                    x++;
+                if (y == 0)//касается верхней границы
+                    y++;
+                if (x + width >= 19)//касается левой границы
+                    width--;
+                if (y + height >= 19)//касается нижней границы
+                    height--;
+                for (int j = y - 1; j < y + height + 1; j++)//есть ли рядом что-то
+                {
+                    for (int i = x - 1; i < x + width + 1; i++)
+                    {
+                        if (gridArray[j, i] != 0 && gridArray[j, i] % 2 == 0) return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public bool isFirstOnRightPlace(string name, int rotate, Point positionPoint, int team)
+        {
+            int w = Convert.ToInt16(name.Substring(0, 1));
+            int h = Convert.ToInt16(name.Substring(2, 1));
+            return isFirstOnRightPlace(w, h, positionPoint.X, positionPoint.Y, rotate, team);
+        }
         public void addSquare(int width, int height, int rotate, int team, int x, int y)
         {
             Point coords = new Point(x, y);
 
-            if (isItFit(width, height, x, y, rotate))
+            if (isItFit(width, height, x, y, rotate) && isFirstOnRightPlace(width, height, x, y, rotate, team))
             {
+                if (squaresList.Count % 2 == 0)
+                {
+                    sum1 += height * width;
+                }
+                else sum2 += height * width;
+                Console.WriteLine("sum1 =" + sum1.ToString() + "\nsum2 = " + sum2.ToString());
                 Square.SquareInfo el = new Square.SquareInfo(coords, height.ToString() + "-" + width.ToString(), rotate, team);
                 squaresList.Add(el);
 
@@ -267,11 +335,11 @@ namespace BattleOfSquares
     {
         public bool needToDraw;//нужно ли рисовать
 
-        static int timeForSide = 500;//сколько времени на одну сторону кости
+        static int timeForSide = 300;//сколько времени на одну сторону кости
         static Vector2 startPoint = new Vector2(200, 100);//если в определенной точке, то нужна начальная точка
 
         static float scale = 0.7f;//масштаб
-        static Vector2 addTo = new Vector2(0, 3 * scale);//вектор, на сколько изменять координаты
+        static Vector2 addTo = new Vector2(0, 5 * scale);//вектор, на сколько изменять координаты
 
 
         int currentTime = 0;//прошедшее время
@@ -280,7 +348,6 @@ namespace BattleOfSquares
 
 
         Vector2 additionalVector = new Vector2(0, -100 * scale);//вектор для изменения координат
-
 
         public int NewRoll(int diceNumber, int prCount)
         {//запрос на отрисовку
@@ -328,7 +395,7 @@ namespace BattleOfSquares
 
                 if (currentSide == 7)
                 {
-                    if (currentTime <= 3 * timeForSide)
+                    if (currentTime <= 2 * timeForSide)
                     {
                         Texture2D diceTexture = Game1.GetDiceTexture(randoms[5]);//получение текстуры стороны
                         sb.Draw(diceTexture, mouseVector + shiftPr, null, Color.White, 0, Vector2.Zero, scale, SpriteEffects.None, 1);//отрисовка
@@ -402,7 +469,6 @@ namespace BattleOfSquares
         int currentTimeWrong = 0;
         int periodWrong = 300;
 
-
         bool pressed = false;
 
         Point mousePosition;
@@ -471,7 +537,6 @@ namespace BattleOfSquares
 
         protected override void UnloadContent()
         { }
-
         protected override void Update(GameTime gameTime)
         {
             currentTimeKeyboard += gameTime.ElapsedGameTime.Milliseconds;
@@ -518,7 +583,7 @@ namespace BattleOfSquares
 
                         int prCount = dice.NewRoll(1, 0);
                         int count = dice2.NewRoll(2, prCount);
-                        placingSquare.ChangeTeam(dice.GetRandom(),dice2.GetRandom());
+                        placingSquare.ChangeTeam(dice.GetRandom(), dice2.GetRandom());
                     }
 
                 }
@@ -536,7 +601,6 @@ namespace BattleOfSquares
                     positionPoint = new Point((int)((currentMouseState.X - startPoint.X) / Square.sizeOfGrid.X), (int)((currentMouseState.Y - startPoint.Y) / Square.sizeOfGrid.Y));//относительные координаты
                     mousePosition = new Point(currentMouseState.X - 27, currentMouseState.Y - 27);//возможно стоит переделать для удобства
                 }
-
             }
 
             lastMouseState = currentMouseState;
@@ -578,7 +642,7 @@ namespace BattleOfSquares
             {
                 if (pressed == true)//клавиша была нажата
                 {
-                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint))//место подходит для установки
+                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint) && gridSystem.isFirstOnRightPlace(placingSquare.name, placingSquare.rotate, positionPoint, placingSquare.team))//место подходит для установки
                     {
                         if (dice.needToDraw == false)
                         {
@@ -588,13 +652,14 @@ namespace BattleOfSquares
                             int prCount = dice.NewRoll(1, 0);
                             int count = dice2.NewRoll(2, prCount);
                             placingSquare.ChangeTeam(dice.GetRandom(), dice2.GetRandom());
+                            placingSquare.rotate = 0;
 
                             pressed = false;
                         }
                     }
-                    else 
+                    else
                     {
-                        placingSquare.WrongPlace(1);
+                        if (placingSquare.wrong == false) placingSquare.WrongPlace(1);
                         pressed = false;
                     }
                 }
