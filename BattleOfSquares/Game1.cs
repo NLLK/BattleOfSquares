@@ -170,45 +170,7 @@ namespace BattleOfSquares
         List<Square.SquareInfo> squaresList = new List<Square.SquareInfo>();
         int sum1;
         int sum2;
-        public bool isItFit(int width, int height, int x, int y, int rotate)
-        {
-            if (rotate == 1)
-            {//перевернутое
-                if (x + height > 20 || y > 19 || y - width + 1 < 0) return false;
-                for (int j = y - width + 1; j <= y; j++)
-                {
-                    int sum = 0;
-                    for (int i = x; i < x + height; i++)
-                    {
-                        sum += gridArray[j, i];
-                        if (sum > 0 || gridArray[j, i] != 0)
-                            return false;
-                    }
-                }
-            }
-            else
-            {//вертикальное
-                if (x + width > 20 || y + height > 20) return false;
-                for (int j = y; j < y + height; j++)
-                {
-                    int sum = 0;
-                    for (int i = x; i < x + width; i++)
-                    {
-                        sum += gridArray[j, i];
-                        if (sum > 0 || gridArray[j, i] != 0)
-                            return false;
-                    }
-                }
-            }
-            return true;
-        }
-        public bool isItFit(string name, int rotate, Point positionPoint)
-        {
-            int w = Convert.ToInt16(name.Substring(0, 1));
-            int h = Convert.ToInt16(name.Substring(2, 1));
-            return isItFit(w, h, positionPoint.X, positionPoint.Y, rotate);
-        }
-        public bool isFirstOnRightPlace(int width, int height, int x, int y, int rotate, int team)
+        public bool isItFit(int width, int height, int x, int y, int rotate, int team)
         {
             if (rotate == 1)
             {
@@ -218,6 +180,28 @@ namespace BattleOfSquares
                 width = height;
                 height = temp;
             }
+            if (x + width > 20 || y + height > 20) return false;
+            for (int j = y; j < y + height; j++)
+            {
+                int sum = 0;
+                for (int i = x; i < x + width; i++)
+                {
+                    sum += gridArray[j, i];
+                    if (sum > 0 || gridArray[j, i] != 0)
+                        return false;
+                }
+            }
+
+            return isOnRightPlace(width, height, x, y, team);
+        }
+        public bool isItFit(string name, int rotate, Point positionPoint, int team)
+        {
+            int w = Convert.ToInt16(name.Substring(0, 1));
+            int h = Convert.ToInt16(name.Substring(2, 1));
+            return isItFit(w, h, positionPoint.X, positionPoint.Y, rotate, team);
+        }
+        public bool isOnRightPlace(int width, int height, int x, int y, int team)
+        {
             if (team == 0)//синие
             {
                 if (x == 0 && y == 0)//для первого
@@ -251,9 +235,9 @@ namespace BattleOfSquares
                     x++;
                 if (y == 0)//касается верхней границы
                     y++;
-                if (x + width >= 19)//касается левой границы
+                if (x + width > 19)//касается правой границы
                     width--;
-                if (y + height >= 19)//касается нижней границы
+                if (y + height > 19)//касается нижней границы
                     height--;
                 for (int j = y - 1; j < y + height + 1; j++)//есть ли рядом что-то
                 {
@@ -265,17 +249,11 @@ namespace BattleOfSquares
             }
             return false;
         }
-        public bool isFirstOnRightPlace(string name, int rotate, Point positionPoint, int team)
-        {
-            int w = Convert.ToInt16(name.Substring(0, 1));
-            int h = Convert.ToInt16(name.Substring(2, 1));
-            return isFirstOnRightPlace(w, h, positionPoint.X, positionPoint.Y, rotate, team);
-        }
         public void addSquare(int width, int height, int rotate, int team, int x, int y)
         {
             Point coords = new Point(x, y);
 
-            if (isItFit(width, height, x, y, rotate) && isFirstOnRightPlace(width, height, x, y, rotate, team))
+            if (isItFit(width, height, x, y, rotate, team))
             {
                 if (squaresList.Count % 2 == 0)
                 {
@@ -287,25 +265,23 @@ namespace BattleOfSquares
                 squaresList.Add(el);
 
                 if (rotate == 1)
-                {//горизонтальное
-                    for (int j = y - width + 1; j <= y; j++)
+                {
+                    y += 1 - width;
+
+                    int temp = width;
+                    width = height;
+                    height = temp;
+                }
+
+
+                for (int j = y; j < y + height; j++)
+                {
+                    for (int i = x; i < x + width; i++)
                     {
-                        for (int i = x; i < x + height; i++)
-                        {
-                            gridArray[j, i] = squaresList.Count;
-                        }
+                        gridArray[j, i] = squaresList.Count;
                     }
                 }
-                else
-                {//вертикальное
-                    for (int j = y; j < y + height; j++)
-                    {
-                        for (int i = x; i < x + width; i++)
-                        {
-                            gridArray[j, i] = squaresList.Count;
-                        }
-                    }
-                }
+
                 el = null;
             }
         }
@@ -489,6 +465,7 @@ namespace BattleOfSquares
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+
             Content.RootDirectory = "Content";
         }
 
@@ -496,6 +473,7 @@ namespace BattleOfSquares
         {
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+
             graphics.ApplyChanges();
 
             //  graphics.ToggleFullScreen();  
@@ -642,7 +620,7 @@ namespace BattleOfSquares
             {
                 if (pressed == true)//клавиша была нажата
                 {
-                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint) && gridSystem.isFirstOnRightPlace(placingSquare.name, placingSquare.rotate, positionPoint, placingSquare.team))//место подходит для установки
+                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint, placingSquare.team))//место подходит для установки
                     {
                         if (dice.needToDraw == false)
                         {
