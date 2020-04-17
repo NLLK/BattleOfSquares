@@ -56,7 +56,7 @@ namespace BattleOfSquares
             dice = new Dice();
             dice2 = new Dice();
             GraphicsDevice.Clear(Color.White);
-            placingSquare = new Square.SquareInfo(new Point(0, 0), "1-1", 0, 1);
+            placingSquare = new Square.SquareInfo(new Point(0, 0), "1-1", 0, 0);
             base.Initialize();
         }
         protected override void LoadContent()
@@ -135,7 +135,7 @@ namespace BattleOfSquares
 
                         int prCount = dice.NewRoll(1, 0);
                         int count = dice2.NewRoll(2, prCount);
-                        placingSquare.ChangeTeam(dice.GetRandom(), dice2.GetRandom());
+                        placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
                     }
 
                 }
@@ -143,6 +143,20 @@ namespace BattleOfSquares
         }
         void UpdateGame()
         {
+            if (!dice.needToDraw && gridSystem.isItTheEnd(placingSquare.name, placingSquare.team))
+            {
+                pageNumber = 2;
+            }
+            if (placingSquare.wrong)
+            {
+                currentTimeWrong += 16;
+            }
+            if (currentTimeWrong >= periodWrong)
+            {
+                currentTimeWrong = 0;
+                placingSquare.WrongPlace(0);
+            }
+
             MouseState currentMouseState = Mouse.GetState();
 
             if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
@@ -169,6 +183,7 @@ namespace BattleOfSquares
                 {
                     int prCount = dice.NewRoll(1, 0);
                     int count = dice2.NewRoll(2, prCount);
+                    placingSquare.ChangeDices(prCount, count);
                 }
                 if (keyboardState.IsKeyDown(Keys.H))
                 {
@@ -177,17 +192,6 @@ namespace BattleOfSquares
                     else hideHelp = false;
                 }
             }
-
-            if (placingSquare.wrong)
-            {
-                currentTimeWrong += 16;
-            }
-            if (currentTimeWrong >= periodWrong)
-            {
-                currentTimeWrong = 0;
-                placingSquare.WrongPlace(0);
-            }
-
             if (currentMouseState.LeftButton == ButtonState.Pressed)
             {
                 if (pressed == false)
@@ -199,7 +203,7 @@ namespace BattleOfSquares
             {
                 if (pressed == true)//клавиша была нажата
                 {
-                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint, placingSquare.team))//место подходит для установки
+                    if (gridSystem.isItFit(placingSquare.name, placingSquare.rotate, positionPoint, placingSquare.team)==0)//место подходит для установки
                     {
                         if (dice.needToDraw == false)
                         {
@@ -207,7 +211,8 @@ namespace BattleOfSquares
 
                             int prCount = dice.NewRoll(1, 0);
                             int count = dice2.NewRoll(2, prCount);
-                            placingSquare.ChangeTeam(dice.GetRandom(), dice2.GetRandom());
+                            placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
+                            placingSquare.ChangeTeam();
                             placingSquare.rotate = 0;
 
                             pressed = false;

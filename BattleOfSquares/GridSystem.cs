@@ -2,13 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace BattleOfSquares
 {
-
     public class GridSystem
     {
         int[,] gridArray = new int[20, 20];
@@ -16,8 +11,9 @@ namespace BattleOfSquares
         List<Square.SquareInfo> squaresList = new List<Square.SquareInfo>();
         int sumOfSquaresBlue;
         int sumOfSquaresPink;
-        public bool isItFit(int width, int height, int x, int y, int rotate, int team)
+        public int isItFit(int width, int height, int x, int y, int rotate, int team)
         {//вмещается ли?
+            //если <0, то не вмещается вообще, если >0, то возле другой команды ставится, 0 если все впорядке 
             if (rotate == 1)
             {
                 y += 1 - width;
@@ -26,7 +22,7 @@ namespace BattleOfSquares
                 width = height;
                 height = temp;
             }
-            if (x + width > 20 || y + height > 20 || y < 0) return false;
+            if (x + width > 20 || y + height > 20 || y < 0) return -1;
             for (int j = y; j < y + height; j++)
             {
                 int sum = 0;
@@ -34,24 +30,25 @@ namespace BattleOfSquares
                 {
                     sum += gridArray[j, i];
                     if (sum > 0 || gridArray[j, i] != 0)
-                        return false;
+                        return -1;
                 }
             }
 
             return isOnRightPlace(width, height, x, y, team);
         }
-        public bool isItFit(string name, int rotate, Point positionPoint, int team)
+        public int isItFit(string name, int rotate, Point positionPoint, int team)
         {
             int w = Convert.ToInt16(name.Substring(0, 1));
             int h = Convert.ToInt16(name.Substring(2, 1));
             return isItFit(w, h, positionPoint.X, positionPoint.Y, rotate, team);
         }
-        public bool isOnRightPlace(int width, int height, int x, int y, int team)//на правильное ли место ставим?
+        public int isOnRightPlace(int width, int height, int x, int y, int team)//на правильное ли место ставим?
         {
+            //если 0 - на верное место. Если 1 - нет
             if (team == 0)//синие
             {
                 if (x == 0 && y == 0)//для первого
-                    return true;
+                    return 0;
                 if (x == 0)//касается левой границы
                     x++;
                 if (y == 0)//касается верхней границы
@@ -64,7 +61,7 @@ namespace BattleOfSquares
                 {
                     for (int i = x - 1; i < x + width; i++)
                     {
-                        if (gridArray[j, i] % 2 == 1) return true;
+                        if (gridArray[j, i] % 2 == 1) return 0;
                     }
                 }
             }
@@ -72,7 +69,7 @@ namespace BattleOfSquares
             {
 
                 if (x + width == 20 && y + height == 20)//для первого
-                    return true;
+                    return 0;
                 if (x == 0)//касается левой границы
                     x++;
                 if (y == 0)//касается верхней границы
@@ -85,33 +82,36 @@ namespace BattleOfSquares
                 {
                     for (int i = x - 1; i < x + width + 1; i++)
                     {
-                        if (gridArray[j, i] != 0 && gridArray[j, i] % 2 == 0) return true;
+                        if (gridArray[j, i] != 0 && gridArray[j, i] % 2 == 0) return 0;
                     }
                 }
             }
-            return false;
+            return 1;
         }
-        public bool isItTheEnd()
+        public bool isItTheEnd(string name, int team)
         {
-
-
+            int w = Convert.ToInt16(name.Substring(0, 1));
+            int h = Convert.ToInt16(name.Substring(2, 1));
             for (int j = 0; j <= 19; j++)
             {
                 for (int i = 0; i <= 19; i++)
                 {
                     if (gridArray[j, i] == 0)
                     {
-
+                        if (isItFit(w,h,i,j,0,team) >= 0 || isItFit(w, h, i, j, 1, team) >= 0)//если в точку помещается повернутый или не повернутый прямоугольник, то еще можно продолжать
+                        {
+                            return false;
+                        }
                     }
                 }
             }
-            return false;
+            return true;
         }
         public void addSquare(int width, int height, int rotate, int team, int x, int y)
         {
             Point coords = new Point(x, y);
 
-            if (isItFit(width, height, x, y, rotate, team))
+            if (isItFit(width, height, x, y, rotate, team)==0)
             {
                 Square.SquareInfo el = new Square.SquareInfo(coords, height.ToString() + "-" + width.ToString(), rotate, team);
                 squaresList.Add(el);

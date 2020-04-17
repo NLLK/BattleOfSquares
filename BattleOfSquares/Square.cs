@@ -1,11 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace BattleOfSquares
 {
     public class Square
@@ -46,7 +41,7 @@ namespace BattleOfSquares
             {
                 rotate = (rotate == 0) ? 1 : 0;
             }
-            public void ChangeTeam(int dice1, int dice2)
+            public void ChangeDices(int dice1, int dice2)
             {
                 int x = dice1;
                 int y = dice2;
@@ -58,6 +53,10 @@ namespace BattleOfSquares
                 }
                 name = x.ToString() + "-" + y.ToString();
                 Console.WriteLine("Generated: x y: " + name);
+            }
+
+            public void ChangeTeam()
+            {
                 team = (team == 0) ? 1 : 0;
             }
             public void WrongPlace(int isIt)
