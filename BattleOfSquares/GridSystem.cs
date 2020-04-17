@@ -57,11 +57,12 @@ namespace BattleOfSquares
                     width--;
                 if (y + height > 19)//касается нижней границы
                     height--;
-                for (int j = y - 1; j < y + height; j++)//есть ли рядом что-то
+                for (int j = y - 1; j < y + height+1; j++)//есть ли рядом что-то
                 {
-                    for (int i = x - 1; i < x + width; i++)
+                    for (int i = x - 1; i < x + width+1; i++)
                     {
-                        if (gridArray[j, i] % 2 == 1) return 0;
+                        if (gridArray[j, i] % 2 == 1)
+                            return 0;
                     }
                 }
             }
