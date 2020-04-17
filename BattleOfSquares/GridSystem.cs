@@ -138,16 +138,6 @@ namespace BattleOfSquares
                         gridArray[j, i] = squaresList.Count;
                     }
                 }
-                for (int i = 0; i <= 19; i++)
-                {
-                    for (int j = 0; j <= 19; j++)
-                    {
-                        if (gridArray[i, j] >= 10) Console.Write(gridArray[i, j].ToString() + ",");
-                        else
-                            Console.Write(gridArray[i, j].ToString() + " ,");
-                    }
-                    Console.WriteLine("\n");
-                }
             }
         }
         public void addSquare(string name, int rotate, int team, Point positionPoint)
@@ -158,6 +148,11 @@ namespace BattleOfSquares
         }
         public void DrawAll(SpriteBatch spriteBatch)
         {
+            DrawSquares(spriteBatch);
+            DrawScore(spriteBatch);
+        }
+        public void DrawSquares(SpriteBatch spriteBatch)
+        {
             for (int n = 0; n < squaresList.Count; n++)
             {
                 Square sq = new Square(spriteBatch);
@@ -165,17 +160,16 @@ namespace BattleOfSquares
                 sq.Draw(el.name, el.rotate, el.team, el.position);
                 sq = null;
             }
-            DrawScore(spriteBatch);
         }
         private void DrawScore(SpriteBatch spriteBatch)
         {
             Color blueTeamColor = new Color(102, 153, 255, 255);
             Color pinkTeamColor = new Color(255, 51, 153, 255);
 
-            SpriteFont scoreBlue = Game1.GetScoreSpriteFont(0);
-            SpriteFont scorePink = Game1.GetScoreSpriteFont(1);
-            spriteBatch.DrawString(scoreBlue, sumOfSquaresBlue.ToString(), new Vector2(1500, 100), blueTeamColor);
-            spriteBatch.DrawString(scorePink, sumOfSquaresPink.ToString(), new Vector2(1500, 150), pinkTeamColor);
+            SpriteFont score = Game1.scoreDisplay;
+
+            spriteBatch.DrawString(score, "Score: "+sumOfSquaresBlue.ToString(), new Vector2(1480, 10), blueTeamColor);
+            spriteBatch.DrawString(score, "Score: " + sumOfSquaresPink.ToString(), new Vector2(1480, 540+10), pinkTeamColor);
         }
         public void ClearSquares()
         {

@@ -7,8 +7,6 @@ namespace BattleOfSquares
     {
         public static Point sizeOfGrid = new Point(54, 54);
 
-        static Color blueTeamColor = new Color(102, 153, 255, 255);
-        static Color pinkTeamColor = new Color(255, 51, 153, 255);
         static Color wrongPlaceColor = new Color(255, 0, 0, 255);
         SpriteBatch spriteBatch;
         public Square(SpriteBatch spriteBatch)
@@ -52,9 +50,7 @@ namespace BattleOfSquares
                     y = t;
                 }
                 name = x.ToString() + "-" + y.ToString();
-                Console.WriteLine("Generated: x y: " + name);
             }
-
             public void ChangeTeam()
             {
                 team = (team == 0) ? 1 : 0;
@@ -89,8 +85,8 @@ namespace BattleOfSquares
             Color teamColor;
             switch (team)
             {
-                case 0: { teamColor = blueTeamColor; break; }
-                case 1: { teamColor = pinkTeamColor; break; }
+                case 0: { teamColor = Game1.blueTeamColor; break; }
+                case 1: { teamColor = Game1.pinkTeamColor; break; }
                 case 2: { teamColor = wrongPlaceColor; break; }
                 default: { teamColor = Color.Black; break; }
             }
@@ -121,8 +117,8 @@ namespace BattleOfSquares
                 Color teamColor;
                 switch (team)
                 {
-                    case 0: { teamColor = blueTeamColor; break; }
-                    case 1: { teamColor = pinkTeamColor; break; }
+                    case 0: { teamColor = Game1.blueTeamColor; break; }
+                    case 1: { teamColor = Game1.pinkTeamColor; break; }
                     case 2: { teamColor = wrongPlaceColor; break; }
                     default: { teamColor = Color.Black; break; }
                 }
