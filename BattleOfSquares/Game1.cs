@@ -48,6 +48,7 @@ namespace BattleOfSquares
         GridSystem gridSystem;//управление сеткой и прямоугольниками на ней
         Dice dice;//кости, анимация и рандом
         Dice dice2;//кости, анимация и рандом, 2 кость
+        CousorLoadingAnimation coursorLoading = new CousorLoadingAnimation();
         Square.SquareInfo placingSquare;//квадратик, который будем ставить, информация о нем
 
         static List<Texture> squareTextures = new List<Texture>();//текстуры прямоугольников
@@ -67,7 +68,7 @@ namespace BattleOfSquares
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.ApplyChanges();
-           // graphics.ToggleFullScreen();
+            // graphics.ToggleFullScreen();
             gridSystem = new GridSystem();
             dice = new Dice();
             dice2 = new Dice();
@@ -173,6 +174,11 @@ namespace BattleOfSquares
         }
         void UpdateGame()
         {
+            if (placingSquare.team!=2 && gridSystem.isItTheEnd(placingSquare.name, placingSquare.team) && dice.needToDraw == false)
+            {
+                pageNumber = 2;
+            }
+
             if (placingSquare.wrong)
             {
                 currentTimeWrong += 16;
@@ -238,11 +244,6 @@ namespace BattleOfSquares
                             placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
                             placingSquare.ChangeTeam();
                             placingSquare.rotate = 0;
-
-                            if (gridSystem.isItTheEnd(placingSquare.name, placingSquare.team))
-                            {
-                                pageNumber = 2;
-                            }
 
                             pressed = 0;
                         }
@@ -310,7 +311,6 @@ namespace BattleOfSquares
                 }
             }
         }
-
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
@@ -366,14 +366,18 @@ namespace BattleOfSquares
 
                 gridSystem.DrawAll(spriteBatch);//все квадратики
 
-                dice.Draw(spriteBatch, 1, mousePosition + new Point(0, 54));
-                dice2.Draw(spriteBatch, 2, mousePosition + new Point(0, 54));
+                dice.Draw(spriteBatch, 1, placingSquare.team);
+                dice2.Draw(spriteBatch, 2, placingSquare.team);
 
                 if (dice.needToDraw == false)
                 {
                     Square sq = new Square(spriteBatch);
                     sq.Draw(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);
                     sq.DrawInPixel("1-1", placingSquare.rotate, placingSquare.team, mousePosition, GraphicsDevice);
+                }
+                else
+                {
+                    coursorLoading.Draw(spriteBatch, mousePosition);
                 }
 
                 DrawText();//help, your turn!
@@ -415,6 +419,8 @@ namespace BattleOfSquares
                 spriteBatch.Draw(fieldStartPointsTexture, startPoint, null, Color.White, 0, Vector2.Zero, 1f, SpriteEffects.None, 0); //поле, точки старта
 
                 gridSystem.DrawAll(spriteBatch);//все квадратики и очки
+                dice.Draw(spriteBatch, 1, placingSquare.team);
+                dice2.Draw(spriteBatch, 2, placingSquare.team);
 
                 spriteBatch.Draw(endMenuBackground, new Vector2(684, 352), Color.White); //фон
 
