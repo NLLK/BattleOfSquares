@@ -57,9 +57,9 @@ namespace BattleOfSquares
                     width--;
                 if (y + height > 19)//касается нижней границы
                     height--;
-                for (int j = y - 1; j < y + height+1; j++)//есть ли рядом что-то
+                for (int j = y - 1; j < y + height + 1; j++)//есть ли рядом что-то
                 {
-                    for (int i = x - 1; i < x + width+1; i++)
+                    for (int i = x - 1; i < x + width + 1; i++)
                     {
                         if (gridArray[j, i] % 2 == 1)
                             return 0;
@@ -68,22 +68,24 @@ namespace BattleOfSquares
             }
             else if (team == 1)//розовые
             {
-
+                int incJ=0;//если на границе, надо учитывать на 1 строку меньше
+                int incI=0;//если на границе, надо учитывать на 1 строку меньше
                 if (x + width == 20 && y + height == 20)//для первого
                     return 0;
                 if (x == 0)//касается левой границы
-                    x++;
+                    incI++;
                 if (y == 0)//касается верхней границы
-                    y++;
+                    incJ++;
                 if (x + width > 19)//касается правой границы
                     width--;
                 if (y + height > 19)//касается нижней границы
                     height--;
-                for (int j = y - 1; j < y + height + 1; j++)//есть ли рядом что-то
+                for (int j = y - 1+incJ; j < y + height + 1; j++)//есть ли рядом что-то
                 {
-                    for (int i = x - 1; i < x + width + 1; i++)
+                    for (int i = x - 1 + incI; i < x + width + 1; i++)
                     {
-                        if (gridArray[j, i] != 0 && gridArray[j, i] % 2 == 0) return 0;
+                        if (gridArray[j, i] != 0 && gridArray[j, i] % 2 == 0)
+                            return 0;
                     }
                 }
             }
@@ -91,6 +93,7 @@ namespace BattleOfSquares
         }
         public bool isItTheEnd(string name, int team)
         {
+            bool isIt = true;
             int w = Convert.ToInt16(name.Substring(0, 1));
             int h = Convert.ToInt16(name.Substring(2, 1));
             for (int j = 0; j <= 19; j++)
@@ -99,20 +102,21 @@ namespace BattleOfSquares
                 {
                     if (gridArray[j, i] == 0)
                     {
-                        if (isItFit(w,h,i,j,0,team) >= 0 || isItFit(w, h, i, j, 1, team) >= 0)//если в точку помещается повернутый или не повернутый прямоугольник, то еще можно продолжать
+                        if (isItFit(w, h, i, j, 0, team) == 0 || isItFit(w, h, i, j, 1, team) == 0)//если в точку помещается повернутый или не повернутый прямоугольник, то еще можно продолжать
                         {
-                            return false;
+                            if (isIt == true)
+                                isIt = false;
                         }
                     }
                 }
             }
-            return true;
+            return isIt;
         }
         public void addSquare(int width, int height, int rotate, int team, int x, int y)
         {
             Point coords = new Point(x, y);
 
-            if (isItFit(width, height, x, y, rotate, team)==0)
+            if (isItFit(width, height, x, y, rotate, team) == 0)
             {
                 Square.SquareInfo el = new Square.SquareInfo(coords, height.ToString() + "-" + width.ToString(), rotate, team);
                 squaresList.Add(el);
@@ -168,8 +172,8 @@ namespace BattleOfSquares
 
             SpriteFont score = Game1.scoreDisplay;
 
-            spriteBatch.DrawString(score, "Score: "+sumOfSquaresBlue.ToString(), new Vector2(1480, 10), blueTeamColor);
-            spriteBatch.DrawString(score, "Score: " + sumOfSquaresPink.ToString(), new Vector2(1480, 540+10), pinkTeamColor);
+            spriteBatch.DrawString(score, "Score: " + sumOfSquaresBlue.ToString(), new Vector2(1480, 10), blueTeamColor);
+            spriteBatch.DrawString(score, "Score: " + sumOfSquaresPink.ToString(), new Vector2(1480, 540 + 10), pinkTeamColor);
         }
         public void ClearSquares()
         {

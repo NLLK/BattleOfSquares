@@ -67,7 +67,7 @@ namespace BattleOfSquares
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.ApplyChanges();
-            graphics.ToggleFullScreen();
+           // graphics.ToggleFullScreen();
             gridSystem = new GridSystem();
             dice = new Dice();
             dice2 = new Dice();
@@ -173,10 +173,6 @@ namespace BattleOfSquares
         }
         void UpdateGame()
         {
-            if (!dice.needToDraw && gridSystem.isItTheEnd(placingSquare.name, placingSquare.team))
-            {
-                pageNumber = 2;
-            }
             if (placingSquare.wrong)
             {
                 currentTimeWrong += 16;
@@ -242,6 +238,11 @@ namespace BattleOfSquares
                             placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
                             placingSquare.ChangeTeam();
                             placingSquare.rotate = 0;
+
+                            if (gridSystem.isItTheEnd(placingSquare.name, placingSquare.team))
+                            {
+                                pageNumber = 2;
+                            }
 
                             pressed = 0;
                         }
