@@ -21,13 +21,20 @@ namespace BattleOfSquares
         Texture2D startMenuStButton;//текстура кнопки старт стартового меню
         Texture2D startMenuStPrButton;//текстура кнопки старт стартового меню в нажатом состоянии
         Texture2D startMenuCoursor;//текстура курсора стартового меню
+        Texture2D startMenuhTButton;//текстура кнопки howTo стартового меню
+        Texture2D startMenuhTPrButton;//текстура кнопки howTo стартового меню в нажатом состоянии
+        Texture2D startMenuExButton;//текстура кнопки выход стартового меню
+        Texture2D startMenuExPrButton;//текстура кнопки выход стартового меню в нажатом состоянии
 
         Texture2D endMenuBackground;//текстура фона меню end
         Texture2D endMenuPlButton;//текстура кнопки play afgain меню end
         Texture2D endMenuPlPrButton;//текстура кнопки play afgain меню end в нажатом состоянии
-
         Texture2D endMenuExButton;//текстура кнопки старт стартового меню
         Texture2D endMenuExPrButton;//текстура кнопки старт стартового меню в нажатом состоянии
+
+        Texture2D howToMenu;//текстура меню how to
+        Texture2D howTobackButton;//текстура кнопки back меню how to
+        Texture2D howToBackPrButton;//текстура кнопки back меню how to в нажатом состоянии
 
         SpriteFont controlHelp;//SprtieFont для хелпа
         SpriteFont turnDisplay;//SpriteFont для your turn!
@@ -68,7 +75,7 @@ namespace BattleOfSquares
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.ApplyChanges();
-            // graphics.ToggleFullScreen();
+            //graphics.ToggleFullScreen();
             gridSystem = new GridSystem();
             dice = new Dice();
             dice2 = new Dice();
@@ -86,11 +93,20 @@ namespace BattleOfSquares
             startMenuStPrButton = Content.Load<Texture2D>("StartMenu\\pressedButton");
             startMenuCoursor = Content.Load<Texture2D>("StartMenu\\coursor");
 
+            startMenuhTButton = Content.Load<Texture2D>("StartMenu\\howTo");
+            startMenuhTPrButton = Content.Load<Texture2D>("StartMenu\\howToPr");
+            startMenuExButton = Content.Load<Texture2D>("StartMenu\\ex");
+            startMenuExPrButton = Content.Load<Texture2D>("StartMenu\\exPr");
+
             endMenuBackground = Content.Load<Texture2D>("EndMenu\\background");
             endMenuPlButton = Content.Load<Texture2D>("EndMenu\\pl");
             endMenuPlPrButton = Content.Load<Texture2D>("EndMenu\\plPr");
             endMenuExButton = Content.Load<Texture2D>("EndMenu\\ex");
             endMenuExPrButton = Content.Load<Texture2D>("EndMenu\\exPr");
+
+            howToMenu = Content.Load<Texture2D>("HowToMenu\\howToMenu");
+            howTobackButton = Content.Load<Texture2D>("HowToMenu\\back");
+            howToBackPrButton = Content.Load<Texture2D>("HowToMenu\\backPr");
 
             for (int i = 1; i <= 6; i++) //заполняем список текстур квадратиков
             {
@@ -137,6 +153,11 @@ namespace BattleOfSquares
                         UpdateEnd();
                         break;
                     }
+                case 3:
+                    {
+                        UpdateHowTo();
+                        break;
+                    }
             }
             base.Update(gameTime);
         }
@@ -148,7 +169,7 @@ namespace BattleOfSquares
             {
                 mousePosition = new Point(currentMouseState.X, currentMouseState.Y);//возможно стоит переделать для удобства
             }
-            if ((currentMouseState.X > 696 && currentMouseState.X < 1223) && (currentMouseState.Y > 605 && currentMouseState.Y < 703))
+            if ((currentMouseState.X > 696 && currentMouseState.X < 1223) && (currentMouseState.Y > 574 && currentMouseState.Y < 683))
             {
                 if (currentMouseState.LeftButton == ButtonState.Pressed)
                 {
@@ -159,7 +180,7 @@ namespace BattleOfSquares
                 }
                 if (currentMouseState.LeftButton == ButtonState.Released)
                 {
-                    if (pressed == 1)//клавиша была нажата
+                    if (pressed == 1)//клавиша start была  нажата
                     {
                         pressed = 0;
                         pageNumber = 1;
@@ -168,9 +189,48 @@ namespace BattleOfSquares
                         int count = dice2.NewRoll(2, prCount);
                         placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
                     }
-
                 }
             }
+
+            if ((currentMouseState.X > 696 && currentMouseState.X < 1223) && (currentMouseState.Y > 725 && currentMouseState.Y < 834))
+            {
+                if (currentMouseState.LeftButton == ButtonState.Pressed)
+                {
+                    if (pressed == 0)
+                    {
+                        pressed = 2;
+                    }
+                }
+                if (currentMouseState.LeftButton == ButtonState.Released)
+                {
+                    if (pressed == 2)//клавиша how to была  нажата
+                    {
+                        pressed = 0;
+                        pageNumber = 3;
+                    }
+                }
+            }
+
+            if ((currentMouseState.X > 696 && currentMouseState.X < 1223) && (currentMouseState.Y > 878 && currentMouseState.Y <978))
+            {
+                if (currentMouseState.LeftButton == ButtonState.Pressed)
+                {
+                    if (pressed == 0)
+                    {
+                        pressed = 3;
+                    }
+                }
+                if (currentMouseState.LeftButton == ButtonState.Released)
+                {
+                    if (pressed == 3)//клавиша exit была нажата
+                    {
+                        pressed = 0;
+                        Exit();
+                    }
+                }
+            }
+
+
         }
         void UpdateGame()
         {
@@ -284,7 +344,7 @@ namespace BattleOfSquares
                     {
                         pressed = 0;
                         pageNumber = 1;
-
+                        gridSystem.ClearSquares();
                         int prCount = dice.NewRoll(1, 0);
                         int count = dice2.NewRoll(2, prCount);
                         placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
@@ -311,6 +371,34 @@ namespace BattleOfSquares
                 }
             }
         }
+        private void UpdateHowTo()
+        {
+            MouseState currentMouseState = Mouse.GetState();
+
+            if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
+            {
+                mousePosition = new Point(currentMouseState.X, currentMouseState.Y);//возможно стоит переделать для удобства
+            }
+            if ((currentMouseState.X > 696 && currentMouseState.X < 1223) && (currentMouseState.Y > 834 && currentMouseState.Y < 932))
+            {
+                if (currentMouseState.LeftButton == ButtonState.Pressed)
+                {
+                    if (pressed == 0)
+                    {
+                        pressed = 1;
+                    }
+                }
+                if (currentMouseState.LeftButton == ButtonState.Released)
+                {
+                    if (pressed == 1)//клавиша была нажата
+                    {
+                        pressed = 0;
+                        pageNumber = 0;
+                    }
+
+                }
+            }
+        }
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
@@ -332,6 +420,11 @@ namespace BattleOfSquares
                         DrawEnd();
                         break;
                     }
+                case 3:
+                    {
+                        DrawHowTo();
+                        break;
+                    }
             }
 
             base.Draw(gameTime);
@@ -344,11 +437,55 @@ namespace BattleOfSquares
 
                 spriteBatch.Draw(startMenuTexture, new Vector2(0, 0), Color.White); //фон
 
+                switch (pressed)
+                {
+                    case 0:
+                        {
+                            spriteBatch.Draw(startMenuStButton, new Vector2(684, 574), Color.White); //кнопка start не нажата
+                            spriteBatch.Draw(startMenuhTButton, new Vector2(684, 725), Color.White);//кнопка how to не нажата
+                            spriteBatch.Draw(startMenuExButton, new Vector2(684, 878), Color.White);//кнопка exit не нажата
+                            break;
+                        }
+                    case 1:
+                        {
+                            spriteBatch.Draw(startMenuStPrButton, new Vector2(696, 579), Color.White); //кнопка start нажата
+                            spriteBatch.Draw(startMenuhTButton, new Vector2(684, 725), Color.White);//кнопка how to не нажата
+                            spriteBatch.Draw(startMenuExButton, new Vector2(684, 878), Color.White);//кнопка exit не нажата
+                            break;
+                        }
+                    case 2:
+                        {
+                            spriteBatch.Draw(startMenuStButton, new Vector2(684, 574), Color.White); //кнопка start не нажата
+                            spriteBatch.Draw(startMenuhTPrButton, new Vector2(696, 730), Color.White);//кнопка how to нажата
+                            spriteBatch.Draw(startMenuExButton, new Vector2(684, 878), Color.White);//кнопка exit не нажата
+                            break;
+                        }
+                    case 3:
+                        {
+                            spriteBatch.Draw(startMenuStButton, new Vector2(684, 574), Color.White); //кнопка start не нажата
+                            spriteBatch.Draw(startMenuhTButton, new Vector2(684, 725), Color.White);//кнопка how to не нажата
+                            spriteBatch.Draw(startMenuExPrButton, new Vector2(696, 883), Color.White);//кнопка exit нажата
+                            break;
+                        }
+                }
+
+                spriteBatch.Draw(startMenuCoursor, mousePosition.ToVector2(), Color.White); //курсор
+
+                spriteBatch.End();
+            }
+        }
+        private void DrawHowTo()
+        {
+            using (spriteBatch = new SpriteBatch(GraphicsDevice))
+            {
+                spriteBatch.Begin(SpriteSortMode.Immediate);
+
+                spriteBatch.Draw(howToMenu, new Vector2(0, 0), Color.White); //фон
                 if (pressed == 0)
                 {
-                    spriteBatch.Draw(startMenuStButton, new Vector2(684, 600), Color.White); //кнопка не нажата
+                    spriteBatch.Draw(howTobackButton, new Vector2(684, 834), Color.White); //кнопка не нажата
                 }
-                else spriteBatch.Draw(startMenuStPrButton, new Vector2(696, 605), Color.White); //кнопка нажата
+                else spriteBatch.Draw(howToBackPrButton, new Vector2(696, 839), Color.White); //кнопка нажата
 
                 spriteBatch.Draw(startMenuCoursor, mousePosition.ToVector2(), Color.White); //курсор
 
