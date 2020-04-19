@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="DiceTest.cs" />
     <Compile Include="Game1Test.cs" />
+    <Compile Include="SquareTest.cs" />
     <Compile Include="GridSystemTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -3,6 +3,7 @@ using System;
 
 namespace BattleOfSquares.Tests
 {
+    [TestFixture]
     class GridSystemTest
     {
         [TestCase(5, 5, 7, 0, 0, 0,-1)]
