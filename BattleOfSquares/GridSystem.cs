@@ -6,8 +6,8 @@ namespace BattleOfSquares
 {
     public class GridSystem
     {
-        int[,] gridArray = new int[20, 20];
-
+        public int[,] gridArray = new int[20, 20];
+        //public is only for tests
         List<Square.SquareInfo> squaresList = new List<Square.SquareInfo>();
         int sumOfSquaresBlue;
         int sumOfSquaresPink;
@@ -142,6 +142,19 @@ namespace BattleOfSquares
                         gridArray[j, i] = squaresList.Count;
                     }
                 }
+                Console.Write("{");
+                for (int i=0;i<20;i++)//вывод в консоль массива
+                {
+                    Console.Write("{");
+                    for (int j=0;j<19;j++)
+                    {
+                        Console.Write(gridArray[i,j].ToString()+",");
+                    }
+                    Console.Write(gridArray[i, 19].ToString()+"},\n");
+                }
+                Console.Write("}\n");
+
+
             }
         }
         public void addSquare(string name, int rotate, int team, Point positionPoint)
