@@ -79,9 +79,9 @@ namespace BattleOfSquares
             Vector2 position;
             if (rotate == 1)
             {
-                position = GridCoords.GetPoint(x, y + 1).ToVector2();
+                position = GetPoint(x, y + 1).ToVector2();
             }
-            else position = GridCoords.GetPoint(x, y).ToVector2();
+            else position = GetPoint(x, y).ToVector2();
             Color teamColor;
             switch (team)
             {
@@ -128,6 +128,10 @@ namespace BattleOfSquares
                 spriteBatch.Draw(sqTexture, position, null, teamColor, 4.712f * rotate, Vector2.Zero, 1f, SpriteEffects.None, 1f);
 
             }
+        }
+        public static Point GetPoint(int x, int y)
+        {//возвращает point по координатам сетки
+            return new Point(x * 54 + (int)Game1.startPoint.X, y * 54);
         }
     }
 }
