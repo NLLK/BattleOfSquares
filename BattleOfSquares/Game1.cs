@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System;
 
 namespace BattleOfSquares
 {
@@ -17,6 +16,7 @@ namespace BattleOfSquares
 
         Texture2D fieldTexture;//текстура поля
         Texture2D fieldStartPointsTexture;//текстура поля
+
         Texture2D startMenuTexture;//текстура стартового меню
         Texture2D startMenuStButton;//текстура кнопки старт стартового меню
         Texture2D startMenuStPrButton;//текстура кнопки старт стартового меню в нажатом состоянии
@@ -604,7 +604,9 @@ namespace BattleOfSquares
         }
         public static Texture2D GetDiceTexture(int num)
         {
-            return (diceTextures[num - 1]).texture;
+            if (num > 0 && num<7)
+                return (diceTextures[num - 1]).texture;
+            else return null;
         }
     }
 }
