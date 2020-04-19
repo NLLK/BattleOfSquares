@@ -47,19 +47,21 @@ namespace BattleOfSquares
             //если 0 - на верное место. Если 1 - нет
             if (team == 0)//синие
             {
+                int incJ = 0;//если на границе, надо учитывать на 1 строку меньше
+                int incI = 0;//если на границе, надо учитывать на 1 строку меньше
                 if (x == 0 && y == 0)//для первого
                     return 0;
                 if (x == 0)//касается левой границы
-                    x++;
+                    incI++;
                 if (y == 0)//касается верхней границы
-                    y++;
+                    incJ++;
                 if (x + width > 19)//касается правой границы
                     width--;
                 if (y + height > 19)//касается нижней границы
                     height--;
-                for (int j = y - 1; j < y + height + 1; j++)//есть ли рядом что-то
+                for (int j = y - 1 + incJ; j < y + height + 1; j++)//есть ли рядом что-то
                 {
-                    for (int i = x - 1; i < x + width + 1; i++)
+                    for (int i = x - 1 + incI; i < x + width + 1; i++)
                     {
                         if (gridArray[j, i] % 2 == 1)
                             return 0;
