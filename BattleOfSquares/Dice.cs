@@ -14,7 +14,8 @@ namespace BattleOfSquares
         static Vector2 addTo = new Vector2(0, 5 * scale);//вектор, на сколько изменять координаты
 
         int currentTime = 0;//прошедшее время
-        int[] randoms = new int[6];//массив рандомных чисел
+        public int[] randoms = new int[6];//массив рандомных чисел
+        //public для тестов
         int currentSide = 1;//текущая сторона
 
         Vector2 additionalVector = new Vector2(0, -100 * scale);//вектор для изменения координат
@@ -76,8 +77,8 @@ namespace BattleOfSquares
             }
 
         }
-        int doRandom(int diceNumber, int c)
-        {
+        public int doRandom(int diceNumber, int c)
+        {//public для тестов
             Random rnd = new Random();
             int count = 0;
             if (diceNumber == 2)
