@@ -4,7 +4,9 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 
 namespace BattleOfSquares
-{
+{/// <summary>
+/// A main Game class
+/// </summary>
     public class Game1 : Game
     {
         public static Color blueTeamColor = new Color(102, 153, 255, 255);
@@ -65,17 +67,23 @@ namespace BattleOfSquares
         public static Vector2 startPoint = new Vector2(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 2 - 590, 0);//начальная точка отрисовки поля
 
         int pageNumber = 0;//номер страницы - определяет рисовать меню - 0, игру - 1, выход - 2
+        /// <summary>
+        /// constructor of class
+        /// </summary>
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
+        /// <summary>
+        /// initialize variables and some display settings
+        /// </summary>
         protected override void Initialize()
         {
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.ApplyChanges();
-            //graphics.ToggleFullScreen();
+            graphics.ToggleFullScreen();
             gridSystem = new GridSystem();
             dice = new Dice();
             dice2 = new Dice();
@@ -83,6 +91,9 @@ namespace BattleOfSquares
             placingSquare = new Square.SquareInfo(new Point(0, 0), "1-1", 0, 0);
             base.Initialize();
         }
+        /// <summary>
+        /// loading a content
+        /// </summary>
         protected override void LoadContent()
         {
             fieldTexture = Content.Load<Texture2D>("field");
@@ -129,8 +140,15 @@ namespace BattleOfSquares
             turnDisplay = Content.Load<SpriteFont>("turn");
             whoWins = Content.Load<SpriteFont>("whoWins");
         }
+        /// <summary>
+        /// unloading a content
+        /// </summary>
         protected override void UnloadContent()
-        { }
+        {/*it is actually empty*/ }
+        /// <summary>
+        /// main update method. It's choose exactly what we need to update
+        /// </summary>
+        /// <param name="gameTime">Just a GameTime</param>
         protected override void Update(GameTime gameTime)
         {
             currentTimeKeyboard += gameTime.ElapsedGameTime.Milliseconds;
@@ -161,6 +179,9 @@ namespace BattleOfSquares
             }
             base.Update(gameTime);
         }
+        /// <summary>
+        /// Update method for menu
+        /// </summary>
         void UpdateMenu()
         {
             MouseState currentMouseState = Mouse.GetState();
@@ -232,6 +253,9 @@ namespace BattleOfSquares
 
 
         }
+        /// <summary>
+        /// Update method for game
+        /// </summary>
         void UpdateGame()
         {
             if (placingSquare.team!=2 && gridSystem.isItTheEnd(placingSquare.name, placingSquare.team) && dice.needToDraw == false)
@@ -317,10 +341,13 @@ namespace BattleOfSquares
             }
             if (currentMouseState.RightButton == ButtonState.Pressed)
             {
-                gridSystem.ClearSquares();
+                gridSystem.Clear();
             }
 
         }
+        /// <summary>
+        /// Update method for ending screen
+        /// </summary>
         private void UpdateEnd()
         {
             MouseState currentMouseState = Mouse.GetState();
@@ -344,7 +371,7 @@ namespace BattleOfSquares
                     {
                         pressed = 0;
                         pageNumber = 1;
-                        gridSystem.ClearSquares();
+                        gridSystem.Clear();
                         int prCount = dice.NewRoll(1, 0);
                         int count = dice2.NewRoll(2, prCount);
                         placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
@@ -371,6 +398,9 @@ namespace BattleOfSquares
                 }
             }
         }
+        /// <summary>
+        /// Update method for help screen
+        /// </summary>
         private void UpdateHowTo()
         {
             MouseState currentMouseState = Mouse.GetState();
@@ -399,10 +429,13 @@ namespace BattleOfSquares
                 }
             }
         }
+        /// <summary>
+        /// main draw method. It's choose exactly what we need to draw
+        /// </summary>
+        /// <param name="gameTime">Just a GameTime</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
-
+            GraphicsDevice.Clear(Color.White);//clears screen
             switch (pageNumber)
             {
                 case 0:
@@ -429,6 +462,9 @@ namespace BattleOfSquares
 
             base.Draw(gameTime);
         }
+        /// <summary>
+        /// Draw method for menu
+        /// </summary>
         private void DrawMenu()
         {
             using (spriteBatch = new SpriteBatch(GraphicsDevice))
@@ -474,6 +510,9 @@ namespace BattleOfSquares
                 spriteBatch.End();
             }
         }
+        /// <summary>
+        /// Draw method for help screen
+        /// </summary>
         private void DrawHowTo()
         {
             using (spriteBatch = new SpriteBatch(GraphicsDevice))
@@ -492,6 +531,9 @@ namespace BattleOfSquares
                 spriteBatch.End();
             }
         }
+        /// <summary>
+        /// Draw method for game
+        /// </summary>
         private void DrawGame()
         {
             using (spriteBatch = new SpriteBatch(GraphicsDevice))
@@ -510,7 +552,7 @@ namespace BattleOfSquares
                 {
                     Square sq = new Square(spriteBatch);
                     sq.Draw(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);
-                    sq.DrawInPixel("1-1", placingSquare.rotate, placingSquare.team, mousePosition, GraphicsDevice);
+                    sq.DrawInPixel("1-1", placingSquare.rotate, placingSquare.team, mousePosition, spriteBatch);
                 }
                 else
                 {
@@ -522,6 +564,9 @@ namespace BattleOfSquares
                 spriteBatch.End();
             }
         }
+        /// <summary>
+        /// Draws text for DrawGame
+        /// </summary>
         private void DrawText()
         {
             string helpInfo = "Press R to rotate a rectangle\n\n"
@@ -546,6 +591,9 @@ namespace BattleOfSquares
             }
 
         }
+        /// <summary>
+        /// Draw method for end screen
+        /// </summary>
         private void DrawEnd()
         {
             using (spriteBatch = new SpriteBatch(GraphicsDevice))
@@ -591,6 +639,11 @@ namespace BattleOfSquares
                 spriteBatch.End();
             }
         }
+        /// <summary>
+        /// Returns Texture2D by its name
+        /// </summary>
+        /// <param name="sqName">squares name in pattern like "1-1"</param>
+        /// <returns>Texture2D by its name</returns>
         public static Texture2D GetSquareTexture(string sqName)
         {
             for (int i = 0; i < squareTextures.Count; i++)
@@ -602,6 +655,11 @@ namespace BattleOfSquares
             }
             return null;
         }
+        /// <summary>
+        /// Returns Texture2D by its number
+        /// </summary>
+        /// <param name="num">dices number</param>
+        /// <returns>Texture2D by its number</returns>
         public static Texture2D GetDiceTexture(int num)
         {
             if (num > 0 && num<7)

@@ -1,13 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BattleOfSquares
 {
+    /// <summary>
+    /// A Class for draw a coursor loading animation
+    /// </summary>
     class CousorLoadingAnimation
     {
         public bool needToDraw=true;//нужно ли рисовать
@@ -22,6 +20,11 @@ namespace BattleOfSquares
         //1-------->2
         //|         |
         //3<________4
+        /// <summary>
+        /// Main method that draws a animation
+        /// </summary>
+        /// <param name="sb">SpriteBatch</param>
+        /// <param name="mousePoint">Point where needs to draw</param>
         public void Draw(SpriteBatch sb, Point mousePoint)
         {
             Vector2 placeVector = mousePoint.ToVector2();

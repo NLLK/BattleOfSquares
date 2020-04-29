@@ -1,32 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="BattleOfSquares.Texture">
-    <Position X="10" Y="2" Width="1.5" />
+    <Position X="9.75" Y="0.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAEAgAAAAAAAAAAAAA=</HashCode>
       <FileName>Texture.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="BattleOfSquares.Game1">
-    <Position X="0.5" Y="0.5" Width="1.5" />
+    <Position X="0.5" Y="0.5" Width="1.75" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>KwYYGViAgAAAQyAAIIIAIAAAAAAAiQgKQAAAAIAIEAQ=</HashCode>
+      <HashCode>IwYYmViGgIAIQ2AAIMIAIAEgAAwIiUgKQBAAQoQJEIQ=</HashCode>
       <FileName>Game1.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="BattleOfSquares.GridCoords">
-    <Position X="10" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAIAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>GridCoords.cs</FileName>
-      <NewMemberFileName>Game1.cs</NewMemberFileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="BattleOfSquares.Square">
-    <Position X="4.75" Y="0.5" Width="2.75" />
+    <Position X="5" Y="0.5" Width="2.75" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
@@ -38,21 +30,21 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAEAAAIAAAkAIAABAAAAAAAAABAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAIEAAAAAAAgAIAABAAAAAAAAABAAAAAAAAAAAAAA=</HashCode>
       <FileName>Square.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="BattleOfSquares.GridSystem">
-    <Position X="2.25" Y="0.5" Width="2.25" />
+    <Position X="2.5" Y="0.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>AIAAAACAEAAAAAAQEAAAAAAAAAEAIAAAAQAACgAAAAI=</HashCode>
+      <HashCode>AIAAAACAEAAAAAAQEAAAAAAAAAEAIAAAARAACgAAAAI=</HashCode>
       <FileName>GridSystem.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="BattleOfSquares.Dice">
     <Position X="8" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>QAAACAAAgABAAgAAAQAAAABCAAAAAAiAAAAAAAAEABA=</HashCode>
+      <HashCode>QAAAAAAAgABAAgAAAQAAAABCAAAAAAiAAAAAAAAEABA=</HashCode>
       <FileName>Dice.cs</FileName>
     </TypeIdentifier>
   </Class>

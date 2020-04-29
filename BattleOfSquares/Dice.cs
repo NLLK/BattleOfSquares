@@ -4,6 +4,9 @@ using System;
 
 namespace BattleOfSquares
 {
+    /// <summary>
+    /// CLass for draw and manage dices
+    /// </summary>
     public class Dice
     {
         public bool needToDraw;//нужно ли рисовать
@@ -19,15 +22,26 @@ namespace BattleOfSquares
         int currentSide = 1;//текущая сторона
 
         Vector2 additionalVector = new Vector2(0, -100 * scale);//вектор для изменения координат
-
+        /// <summary>
+        /// Request for generate new roll
+        /// </summary>
+        /// <param name="diceNumber">Number of dice</param>
+        /// <param name="prCount">previous count for randomizer</param>
+        /// <returns>return random number</returns>
         public int NewRoll(int diceNumber, int prCount)
-        {//запрос на отрисовку
+        {   
             randoms = new int[6];
             currentSide = 1;
             currentTime = 0;
             if (diceNumber == 1) return doRandom(diceNumber, 0);
             else return doRandom(diceNumber, prCount);
         }
+        /// <summary>
+        /// Draws a dices
+        /// </summary>
+        /// <param name="sb">SpriteBatch</param>
+        /// <param name="numberOfDices">How many dices</param>
+        /// <param name="team">team 0-blue, 1-pink</param>
         public void Draw(SpriteBatch sb, int numberOfDices, int team)
         {
             Vector2 placeVector;
@@ -77,6 +91,12 @@ namespace BattleOfSquares
             }
 
         }
+        /// <summary>
+        /// Randoms a numbers for dices
+        /// </summary>
+        /// <param name="diceNumber">first or second number randoms</param>
+        /// <param name="c">previous count of randoms</param>
+        /// <returns>count of randoms</returns>
         public int doRandom(int diceNumber, int c)
         {//public для тестов
             Random rnd = new Random();
@@ -110,6 +130,10 @@ namespace BattleOfSquares
             }
             return count;
         }
+        /// <summary>
+        /// returns a last element of randoms array - final number
+        /// </summary>
+        /// <returns>a last element of randoms array - final number</returns>
         public int GetRandom()
         {
             if (randoms[5] == 0)
