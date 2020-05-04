@@ -1,10 +1,6 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BattleOfSquares.Tests
 {
@@ -17,6 +13,16 @@ namespace BattleOfSquares.Tests
         {
             Texture2D result= Game1.GetSquareTexture(number);
             Assert.AreEqual(result, expected);
+        }
+        [TestCase("1-1", 1,1)]
+        public void GetSquareTextureTest(string number, int expectedWidth, int expectedHeight)
+        {
+            Texture2D resultTexture = Game1.GetSquareTexture(number);
+            int width = resultTexture.Width;
+            int height = resultTexture.Height;
+            Point result = new Point(width, height);
+            Point expected = new Point(expectedWidth*54, expectedHeight*54);
+            Assert.AreEqual(number, expected);
         }
         [TestCase(0, null)]
         [TestCase(-1, null)]

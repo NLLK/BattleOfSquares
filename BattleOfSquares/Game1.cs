@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace BattleOfSquares
@@ -83,7 +84,7 @@ namespace BattleOfSquares
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.ApplyChanges();
-            graphics.ToggleFullScreen();
+            //graphics.ToggleFullScreen();
             gridSystem = new GridSystem();
             dice = new Dice();
             dice2 = new Dice();
@@ -642,7 +643,7 @@ namespace BattleOfSquares
         /// <summary>
         /// Returns Texture2D by its name
         /// </summary>
-        /// <param name="sqName">squares name in pattern like "1-1"</param>
+        /// <param name="sqName">squares name with the template "width-height"</param>
         /// <returns>Texture2D by its name</returns>
         public static Texture2D GetSquareTexture(string sqName)
         {
@@ -650,6 +651,8 @@ namespace BattleOfSquares
             {
                 if (squareTextures[i].name.IndexOf(sqName) != -1)
                 {
+                    Texture2D texture = (squareTextures[i]).texture;
+                    Console.WriteLine(texture.Name);
                     return (squareTextures[i]).texture;
                 }
             }
@@ -658,7 +661,7 @@ namespace BattleOfSquares
         /// <summary>
         /// Returns Texture2D by its number
         /// </summary>
-        /// <param name="num">dices number</param>
+        /// <param name="num">dice's number</param>
         /// <returns>Texture2D by its number</returns>
         public static Texture2D GetDiceTexture(int num)
         {

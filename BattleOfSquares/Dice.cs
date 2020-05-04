@@ -5,7 +5,7 @@ using System;
 namespace BattleOfSquares
 {
     /// <summary>
-    /// CLass for draw and manage dices
+    /// CLass for drawing and manage dices
     /// </summary>
     public class Dice
     {
@@ -23,7 +23,7 @@ namespace BattleOfSquares
 
         Vector2 additionalVector = new Vector2(0, -100 * scale);//вектор для изменения координат
         /// <summary>
-        /// Request for generate new roll
+        /// Request to generate a new roll
         /// </summary>
         /// <param name="diceNumber">Number of dice</param>
         /// <param name="prCount">previous count for randomizer</param>
@@ -37,7 +37,7 @@ namespace BattleOfSquares
             else return doRandom(diceNumber, prCount);
         }
         /// <summary>
-        /// Draws a dices
+        /// Draws dices
         /// </summary>
         /// <param name="sb">SpriteBatch</param>
         /// <param name="numberOfDices">How many dices</param>
@@ -92,10 +92,10 @@ namespace BattleOfSquares
 
         }
         /// <summary>
-        /// Randoms a numbers for dices
+        /// Random a numbers for dices
         /// </summary>
-        /// <param name="diceNumber">first or second number randoms</param>
-        /// <param name="c">previous count of randoms</param>
+        /// <param name="diceNumber">randomize first or second number</param>
+        /// <param name="c">count of randoms in previous dice</param>
         /// <returns>count of randoms</returns>
         public int doRandom(int diceNumber, int c)
         {//public для тестов

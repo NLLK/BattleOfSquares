@@ -3,7 +3,7 @@
 namespace BattleOfSquares
 {
     /// <summary>
-    /// an addition class that helps contain Texture2D and name or number of it
+    /// an addition class that helps contain Texture2D and its name or number
     /// </summary>
     public class Texture
     {//объект texture2d, но с именем отдельно

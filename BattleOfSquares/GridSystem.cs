@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace BattleOfSquares
 {
     /// <summary>
-    /// A main class for controll all things that connected with game field and placing squares stuff
+    /// A main class for control all things that connected with game field and with placing squares
     /// </summary>
     public class GridSystem
     {
@@ -15,15 +15,17 @@ namespace BattleOfSquares
         int sumOfSquaresBlue;
         int sumOfSquaresPink;
         /// <summary>
-        /// Checks is square in this position able to place
+        /// Checking if square can be places in this position
         /// </summary>
-        /// <param name="width">width</param>
-        /// <param name="height">height</param>
+        /// <param name="width">width of square</param>
+        /// <param name="height">height of square</param>
         /// <param name="x">X of posiiton</param>
         /// <param name="y">Y of posiiton</param>
-        /// <param name="rotate">is it rotate? 0 - no, 1 - yes</param>
+        /// <param name="rotate">is it rotated? 0 - no, 1 - yes</param>
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
-        /// <returns>returns negative if it is impossible to fit, positive if there is only enemies squares, and zero if its all ok</returns>
+        /// <returns>returns negative if it is impossible to fit,
+        /// positive if there is only enemies squares, and zero if it's all ok
+        /// </returns>
         public int isItFit(int width, int height, int x, int y, int rotate, int team)
         {//вмещается ли?
             //если <0, то не вмещается вообще, если >0, то возле другой команды ставится, 0 если все впорядке 
@@ -64,10 +66,10 @@ namespace BattleOfSquares
             return isItFit(w, h, positionPoint.X, positionPoint.Y, rotate, team);
         }
         /// <summary>
-        /// addition for isItFit that describes can you place your square in that position according on its coords and another squares
+        /// addition for isItFit that describes if you can place your square in this position according on its coords and another squares
         /// </summary>
-        /// <param name="width">width</param>
-        /// <param name="height">height</param>
+        /// <param name="width">width of square</param>
+        /// <param name="height">height of square</param>
         /// <param name="x">X of posiiton</param>
         /// <param name="y">Y of posiiton</param>
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
@@ -124,9 +126,9 @@ namespace BattleOfSquares
             return 1;
         }
         /// <summary>
-        /// identify can you place your square in any position near your squares
+        /// describes if you can place your square in any position near your squares
         /// </summary>
-        /// <param name="name">squares name in patten "1-1"</param>
+        /// <param name="name">squares name with template "width-height"</param>
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
         /// <returns>true if it's the end, false if it is not</returns>
         public bool isItTheEnd(string name, int team)
@@ -153,12 +155,12 @@ namespace BattleOfSquares
         /// <summary>
         /// Main method for adding squares in system
         /// </summary>
-        /// <param name="width">width</param>
-        /// <param name="height">height</param>
+        /// <param name="width">width of square</param>
+        /// <param name="height">height of square</param>
         /// <param name="x">X of posiiton</param>
         /// <param name="y">Y of posiiton</param>
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
-        /// <param name="rotate">is it rotate? 0 - no, 1 - yes</param>
+        /// <param name="rotate">is it rotated? 0 - no, 1 - yes</param>
         public void addSquare(int width, int height, int rotate, int team, int x, int y)
         {
             Point coords = new Point(x, y);
@@ -207,10 +209,10 @@ namespace BattleOfSquares
         /// <summary>
         /// Another method for adding squares in system
         /// </summary>
-        /// <param name="name">squares name in pattern "1-1"</param>
+        /// <param name="name">squares name with template "width-height"</param>
         /// <param name="rotate">is it rotate? 0 - no, 1 - yes</param> 
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
-        /// <param name="positionPoint">relative point where we place</param>
+        /// <param name="positionPoint">relative point at which we place</param>
         public void addSquare(string name, int rotate, int team, Point positionPoint)
         {
             int w = Convert.ToInt16(name.Substring(0, 1));
@@ -255,7 +257,7 @@ namespace BattleOfSquares
             spriteBatch.DrawString(score, "Score: " + sumOfSquaresPink.ToString(), new Vector2(1480, 540 + 10), pinkTeamColor);
         }
         /// <summary>
-        /// Clears all Grid System includes 
+        /// Clears all that Grid System includes
         /// </summary>
         public void Clear()
         {

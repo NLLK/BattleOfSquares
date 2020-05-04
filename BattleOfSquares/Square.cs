@@ -14,7 +14,7 @@ namespace BattleOfSquares
         {
             this.spriteBatch = spriteBatch;
         }
-        //Class for contain info about square
+        //Class for containing info about square
         public class SquareInfo
         {
             public Point position;
@@ -27,7 +27,7 @@ namespace BattleOfSquares
             /// Sets info
             /// </summary>
             /// <param name="position">Position point in relative points</param>
-            /// <param name="name">name in pattern "1-1"</param>
+            /// <param name="name">name with template "widht-height"</param>
             /// <param name="rotate">if it rotate - 1, or 0 if its not</param>
             /// <param name="team">team: 0-blue, 1 - pink, 2 - error</param>
             public SquareInfo(Point position, string name, int rotate, int team)
@@ -109,8 +109,8 @@ namespace BattleOfSquares
         /// <summary>
         /// Draws a square
         /// </summary>
-        /// <param name="width">width</param>
-        /// <param name="height">height</param>
+        /// <param name="width">width of square</param>
+        /// <param name="height">height of square</param>
         /// <param name="rotate">is it rotate? 0 - no, 1 - yes</param>
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
         /// <param name="x">X of posiiton</param>
@@ -142,7 +142,7 @@ namespace BattleOfSquares
         /// <summary>
         /// Draws a square
         /// </summary>
-        /// <param name="name">name in pattern "1-1"</param>
+        /// <param name="name">name with template "widht-height"</param>
         /// <param name="rotate">is it rotate? 0 - no, 1 - yes</param>
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
         /// <param name="pos">X and Y in relative Point</param>
@@ -155,11 +155,11 @@ namespace BattleOfSquares
         /// <summary>
         /// Draw square in pixel
         /// </summary>
-        /// <param name="name">name in pattern "1-1"</param>
+        /// <param name="name">name with template "widht-height"</param>
         /// <param name="rotate">is it rotate? 0 - no, 1 - yes</param>
         /// <param name="team">team 0-blue, 1-pink, 2-error</param>
         /// <param name="pos">X and Y in absoulte Point</param>
-        /// <param name="spriteBatch">SpriteBatch</param>
+        /// <param name="spriteBatch">Sprite Batch</param>
         public void DrawInPixel(string name, int rotate, int team, Point pos, SpriteBatch spriteBatch)
         {
             int w = Convert.ToInt16(name.Substring(0, 1));
