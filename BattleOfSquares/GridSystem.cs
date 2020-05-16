@@ -191,19 +191,6 @@ namespace BattleOfSquares
                         gridArray[j, i] = squaresList.Count;
                     }
                 }
-                Console.Write("{");
-                for (int i=0;i<20;i++)//вывод в консоль массива
-                {
-                    Console.Write("{");
-                    for (int j=0;j<19;j++)
-                    {
-                        Console.Write(gridArray[i,j].ToString()+",");
-                    }
-                    Console.Write(gridArray[i, 19].ToString()+"},\n");
-                }
-                Console.Write("}\n");
-
-
             }
         }
         /// <summary>

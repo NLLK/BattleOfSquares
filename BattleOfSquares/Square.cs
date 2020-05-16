@@ -153,7 +153,7 @@ namespace BattleOfSquares
             Draw(w, h, rotate, team, pos.X, pos.Y);
         }
         /// <summary>
-        /// Draw square in pixel
+        /// Draws square in pixel
         /// </summary>
         /// <param name="name">name with template "widht-height"</param>
         /// <param name="rotate">is it rotate? 0 - no, 1 - yes</param>

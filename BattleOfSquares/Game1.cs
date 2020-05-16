@@ -84,7 +84,7 @@ namespace BattleOfSquares
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.ApplyChanges();
-            //graphics.ToggleFullScreen();
+            graphics.ToggleFullScreen();
             gridSystem = new GridSystem();
             dice = new Dice();
             dice2 = new Dice();
@@ -153,8 +153,7 @@ namespace BattleOfSquares
         protected override void Update(GameTime gameTime)
         {
             currentTimeKeyboard += gameTime.ElapsedGameTime.Milliseconds;
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            if ( Keyboard.GetState().IsKeyDown(Keys.Escape))     Exit();
             switch (pageNumber)
             {
                 case 0:
@@ -189,7 +188,7 @@ namespace BattleOfSquares
 
             if (currentMouseState.X != lastMouseState.X || currentMouseState.Y != lastMouseState.Y)//мышка сдвинулась вообще
             {
-                mousePosition = new Point(currentMouseState.X, currentMouseState.Y);//возможно стоит переделать для удобства
+                mousePosition = new Point(currentMouseState.X, currentMouseState.Y);
             }
             if ((currentMouseState.X > 696 && currentMouseState.X < 1223) && (currentMouseState.Y > 574 && currentMouseState.Y < 683))
             {
@@ -296,10 +295,6 @@ namespace BattleOfSquares
                 {
                     placingSquare.ChangeRotate();
                 }
-                if (keyboardState.IsKeyDown(Keys.Space))
-                {
-                    pageNumber = 2;
-                }
                 if (keyboardState.IsKeyDown(Keys.H))
                 {
                     if (hideHelp == false)
@@ -323,7 +318,7 @@ namespace BattleOfSquares
                         if (dice.needToDraw == false)
                         {
                             gridSystem.addSquare(placingSquare.name, placingSquare.rotate, placingSquare.team, positionPoint);//добавляем в систему
-
+                            //а почему просто placingSquare не передавать то...
                             int prCount = dice.NewRoll(1, 0);
                             int count = dice2.NewRoll(2, prCount);
                             placingSquare.ChangeDices(dice.GetRandom(), dice2.GetRandom());
@@ -340,11 +335,6 @@ namespace BattleOfSquares
                     }
                 }
             }
-            if (currentMouseState.RightButton == ButtonState.Pressed)
-            {
-                gridSystem.Clear();
-            }
-
         }
         /// <summary>
         /// Update method for ending screen
@@ -652,7 +642,6 @@ namespace BattleOfSquares
                 if (squareTextures[i].name.IndexOf(sqName) != -1)
                 {
                     Texture2D texture = (squareTextures[i]).texture;
-                    Console.WriteLine(texture.Name);
                     return (squareTextures[i]).texture;
                 }
             }
